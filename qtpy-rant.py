@@ -14,14 +14,22 @@ except ImportError as ex:
     print(ex, file=sys.stderr)
     sys.exit(1)
 
-class Application:
+class QtPyApp:
 
     def __init__(self):
-        pass
+        self.gui_mode = True
 
 
 def main():
-    pass
+
+    application = QtPyApp()
+
+    argp = argparse.ArgumentParser(description="The hackable, plugin-able, Qt-based, Python-powered devRant client")
+    argp.add_argument("--nogui", type=bool, choices=[True, False], default=False, help="Start in CLI mode. qtpy-rant becomes just py-rant")
+    args = argp.parse_args()
+    
+    application.gui_mode = not args.nogui
+
 
 if __name__ == "__main__":
     main()

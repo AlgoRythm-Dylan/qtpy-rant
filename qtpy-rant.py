@@ -24,6 +24,10 @@ class QtPyApp:
         self.gui_mode = True
         self.args = None
         self.client = None
+        self.current_user = None
+
+    def is_guest_mode(self):
+        return self.current_user == None
 
 def start_gui(qtpy):
     qtpy.client = QtClient(qtpy)
@@ -46,8 +50,10 @@ def main():
     qtpy = QtPyApp()
 
     argp = argparse.ArgumentParser(description="The hackable, plugin-able, Qt-based, Python-powered devRant client")
-    argp.add_argument("--nogui", type=bool, choices=[True, False], default=False, help="Start in CLI mode. qtpy-rant becomes just py-rant")
+    argp.add_argument("--nogui", action="store_true", help="Start in CLI mode. qtpy-rant becomes just py-rant")
     qtpy.args = argp.parse_args()
+
+    print(qtpy.args)
 
     qtpy.gui_mode = not qtpy.args.nogui
 

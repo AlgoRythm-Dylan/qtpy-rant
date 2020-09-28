@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 class MainWindow(Window):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(qtpy)
         self.setWindowTitle("devRant")
 
         self.header = Header()

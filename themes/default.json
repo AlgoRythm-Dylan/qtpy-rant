@@ -1,0 +1,15 @@
+{
+    "title": "devRant Light",
+    "description": "A light color scheme (default)",
+    "authors": ["@dfox", "@trogus"],
+
+    "background": "#ffffff",
+    "foreground": "#2f2f32",
+    "foreground_alt": "#aaaab8",
+
+    "accent_background": "#d55161",
+    "accent_foreground": "#ffffff",
+
+    "secondary_background": "#40415a",
+    "secondary_foreground": "#ffffff"
+}

@@ -5,16 +5,6 @@ import argparse
 # Append current directory to PYTHONPATH to load our libraries
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
-# Check to make sure all pip packages are installed correctly, if not, die
-try:
-    import requests
-    from PyQt5.QtWidgets import QApplication
-except ImportError as ex:
-    print("[qtpy-rant]: Could not import packages (Are they installed?)", file=sys.stderr)
-    print(ex, file=sys.stderr)
-    sys.exit(1)
-
-from rantlib.core_application.ui.mainwindow import MainWindow
 from rantlib.core_application.nogui.client import TerminalDevRantClient
 from rantlib.core_application.ui.client import QtClient
 
@@ -31,9 +21,6 @@ class QtPyApp:
 
 def start_gui(qtpy):
     qtpy.client = QtClient(qtpy)
-    qtpy.client.qapplication = QApplication(sys.argv)
-    qtpy.client.main_window = MainWindow()
-    qtpy.client.main_window.show()
 
 def start_cli(qtpy):
     qtpy.client = TerminalDevRantClient(qtpy)

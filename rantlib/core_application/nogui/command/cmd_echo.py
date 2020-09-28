@@ -7,5 +7,8 @@ class EchoCommand(Command):
         self.description = "The sanity check command. Repeats whatever you tell it"
         self.usage = "<command> <arguments>"
 
+    def execute(self, args):
+        print(" ".join(args.args))
+
 def register(client):
     client.register_command("echo", EchoCommand())

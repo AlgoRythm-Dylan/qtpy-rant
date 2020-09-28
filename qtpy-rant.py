@@ -53,8 +53,6 @@ def main():
     argp.add_argument("--nogui", action="store_true", help="Start in CLI mode. qtpy-rant becomes just py-rant")
     qtpy.args = argp.parse_args()
 
-    print(qtpy.args)
-
     qtpy.gui_mode = not qtpy.args.nogui
 
     start_app(qtpy)

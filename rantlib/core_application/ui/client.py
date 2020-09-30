@@ -1,6 +1,6 @@
 import sys
 from rantlib.core_application.client import Client
-from rantlib.core_application.ui.mainwindow import MainWindow
+from rantlib.core_application.ui.window.mainwindow import MainWindow
 
 try:
     from PyQt5.QtWidgets import QApplication

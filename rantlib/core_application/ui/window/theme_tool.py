@@ -1,4 +1,4 @@
-from rantlib.core_application.ui.window import window
+from rantlib.core_application.ui.window.window import window
 
 class ThemeTool(Window):
 

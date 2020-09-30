@@ -1,11 +1,11 @@
-from rantlib.core_application.ui.window import Window
-from rantlib.core_application.ui.header import Header
+from rantlib.core_application.ui.window.window import Window
+from rantlib.core_application.ui.parts.header import Header
 from PyQt5.QtWidgets import QBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
 class MainWindow(Window):
 
-    def __init__(self):
+    def __init__(self, qtpy):
         super().__init__(qtpy)
         self.setWindowTitle("devRant")
 

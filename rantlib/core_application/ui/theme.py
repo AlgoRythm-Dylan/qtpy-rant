@@ -19,7 +19,9 @@ class Theme:
         self.secondary_foreground = None
 
 
-    def load(self, source=self.source):
+    def load(self, source=None):
+        if source == None:
+            source = self.source
         self.source = source
         if source.lower().startswith("http://") or source.lower().startswith("https://"):
             self.data(requests.get(source).json()) # Load over HTTP(S)
@@ -43,3 +45,15 @@ class Theme:
 
 def apply_theme(root_element, theme):
     pass
+
+def get_theme_class_name(item):
+    if type(item) == str:
+        # Expected like <class name>#<object id>
+        char_pos = item.find("#")
+        if char_pos == -1:
+            return item
+        else:
+            return item[:char_pos]
+    else:
+        # This is assumed to be a Qt Object
+        return get_theme_class_name(item.getObjectName())

@@ -8,7 +8,7 @@ def create_data_dir():
     os.mkdir(get_data_dir_path())
 
 def get_data_dir_path():
-    return join(expanduser, ".qtpy-rant")
+    return join(expanduser("~"), ".qtpy-rant")
 
 STD_PATH_AUTH = join(get_data_dir_path(), "auth.json")
 STD_PATH_CLI_CONFIG = join(get_data_dir_path(), "cli-config.json")
@@ -26,7 +26,7 @@ def read_data_file(path, default=None):
     return default
 
 def write_data_file(path, data):
-    try:
-        file = open(path, "w+")
-        file.write(json.dumps(data))
-        file.close()
+    file = open(path, "w+")
+    file.write(json.dumps(data))
+    file.close()
+    

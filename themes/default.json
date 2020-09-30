@@ -2,6 +2,7 @@
     "title": "devRant Light",
     "description": "A light color scheme (default)",
     "authors": ["@dfox", "@trogus"],
+    "enabled": true,
 
     "background": "#ffffff",
     "foreground": "#2f2f32",

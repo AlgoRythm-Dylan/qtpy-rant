@@ -1,6 +1,8 @@
 import requests
 import json
 from rantlib.core_application.data.storage import read_data_file
+from os import walk
+from pathlib import Path
 
 class Theme:
 
@@ -57,3 +59,17 @@ def get_theme_class_name(item):
     else:
         # This is assumed to be a Qt Object
         return get_theme_class_name(item.getObjectName())
+
+def get_theme_directory():
+    return Path(__file__).parent.parent.parent.parent.joinpath("themes")
+
+def load_themes():
+    theme_directory = get_theme_directory()
+    themes = []
+    for dirpath, dirnames, filenames in walk(theme_directory):
+        for file in filenames:
+            if file.lower().endswith(".json") and file != "web_themes.json":
+                theme = Theme()
+                theme.data(read_data_file(Path(theme_directory).joinpath(theme)), default={})
+                themes.append(theme)
+        break

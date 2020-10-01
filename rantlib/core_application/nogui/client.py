@@ -12,7 +12,7 @@ from importlib import import_module
 from rantlib.core_application.client import Client
 from rantlib.core_application.nogui.command.command import CommandInput
 
-class TerminalDevRantClient(Client):
+class TerminalClient(Client):
 
     def __init__(self, qtpy):
         super().__init__(qtpy)

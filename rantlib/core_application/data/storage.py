@@ -23,7 +23,7 @@ def read_data_file(path, default=None):
         file.close()
     except Exception as e:
         print(e, file=sys.stderr)
-    return default
+    return data
 
 def write_data_file(path, data):
     file = open(path, "w+")

@@ -1,11 +1,12 @@
 import os
 import sys
 import argparse
+from pathlib import Path
 
 # Append current directory to PYTHONPATH to load our libraries
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
-from rantlib.core_application.nogui.client import TerminalDevRantClient
+from rantlib.core_application.nogui.client import TerminalClient
 from rantlib.core_application.ui.client import QtClient
 
 class QtPyApp:
@@ -23,7 +24,7 @@ def start_gui(qtpy):
     qtpy.client = QtClient(qtpy)
 
 def start_cli(qtpy):
-    qtpy.client = TerminalDevRantClient(qtpy)
+    qtpy.client = TerminalClient(qtpy)
 
 def start_app(qtpy):
     if qtpy.gui_mode:
@@ -38,6 +39,7 @@ def main():
 
     argp = argparse.ArgumentParser(description="The hackable, plugin-able, Qt-based, Python-powered devRant client")
     argp.add_argument("--nogui", action="store_true", help="Start in CLI mode. qtpy-rant becomes just py-rant")
+    argp.add_argument("--theme-tool", action="store_true", help="Open the theme tool for creating and editing themes")
     qtpy.args = argp.parse_args()
 
     qtpy.gui_mode = not qtpy.args.nogui

@@ -1,6 +1,6 @@
 from rantlib.core_application.ui.window.window import Window
 from rantlib.core_application.ui.theme import *
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QScrollArea
 from PyQt5.QtCore import Qt, QThreadPool
 from PyQt5.QtGui import QColor
 from rantlib.core_application.ui.runnables.load_themes import LoadThemesRunnable
@@ -10,10 +10,9 @@ class ThemeTool(Window):
     def __init__(self, qtpy):
         super().__init__(qtpy)
         self.setWindowTitle("qtpy-rant Theme Tool")
-        self.setMinimumSize(650, 500)
+        self.setMinimumSize(550, 450)
 
         self.thread_pool = QThreadPool()
-        self.ui = {} # Persistent UI stuff
 
         widget = QWidget()
         layout = QHBoxLayout()
@@ -22,31 +21,37 @@ class ThemeTool(Window):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-        palette = widget.palette()
-        widget.setAutoFillBackground(True)
-        palette.setColor(widget.backgroundRole(), QColor("#f7f7f7"))
-        widget.setPalette(palette)
-
-        sidebar = QWidget()
+        sidebar = QWidget(widget)
         sidebar.setMaximumWidth(250)
         sidebar.setFixedWidth(250)
-        sidebar_layout = QVBoxLayout()
-        sidebar.setLayout(sidebar_layout)
-        layout.addWidget(sidebar)
 
-        palette = sidebar.palette()
-        sidebar.setAutoFillBackground(True)
-        palette.setColor(sidebar.backgroundRole(), QColor("#e3e3e3"))
-        sidebar.setPalette(palette)
+        sidebar.setLayout(QHBoxLayout())
+        sidebar.layout().setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(sidebar, 1)
+
+        sidebar_scroller = QScrollArea()
+        sidebar.layout().addWidget(sidebar_scroller, 1)
+        sidebar_scroller.setWidgetResizable(True)
+        sidebar_scroller.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        sidebar_widget = QWidget()
+        sidebar_scroller.setWidget(sidebar_widget)
+        sidebar_widget_layout = QVBoxLayout()
+        sidebar_widget.setLayout(sidebar_widget_layout)
+
+        palette = sidebar_widget.palette()
+        palette.setColor(sidebar_widget.backgroundRole(), QColor("#f7f7f7"))
+        sidebar_widget.setPalette(palette)
 
         sidebar_label = QLabel()
         sidebar_label.setWordWrap(True)
         sidebar_label.setText("The Theme Tool is used to preview a theme and detect errors")
         sidebar_label.adjustSize()
-        sidebar_layout.addWidget(sidebar_label)
+        sidebar_widget_layout.addWidget(sidebar_label, alignment=Qt.AlignTop)
 
         theme_area = QWidget()
         theme_area_layout = QVBoxLayout()
+        theme_area_layout.setContentsMargins(0, 0, 0, 0)
         theme_area.setLayout(theme_area_layout)
         layout.addWidget(theme_area, 1)
 
@@ -65,24 +70,36 @@ class ThemeTool(Window):
         select_theme_combo.addItem("Loading...")
         select_theme_combo.setEnabled(False)
         select_theme_layout.addWidget(select_theme_combo, 1)
-        self.ui["select_theme_combo"] = select_theme_combo
+        self.select_theme_combo = select_theme_combo
 
-        sidebar_layout.addWidget(select_theme_widget)
+        sidebar_widget_layout.addWidget(select_theme_widget, alignment=Qt.AlignTop)
 
         reload_theme_list_button = QLabel("Reload")
         reload_theme_list_button.setStyleSheet("QLabel {color: blue; margin-left: 5px; text-decoration: underline}")
         reload_theme_list_button.setCursor(Qt.PointingHandCursor)
         reload_theme_list_button.mousePressEvent = self.handle_list_reload_click
         select_theme_layout.addWidget(reload_theme_list_button)
-        self.ui["reload_theme_list_button"] = reload_theme_list_button
+        self.reload_theme_list_button = reload_theme_list_button
 
-        sidebar_layout.addStretch()
+        authors_label = QLabel("Authors:")
+        sidebar_widget_layout.addWidget(authors_label, alignment=Qt.AlignTop)
+
+        sidebar_widget_layout.addStretch()
+
+        theme_area_scroller = QScrollArea()
+        theme_area_layout.addWidget(theme_area_scroller, 1)
+        theme_area_scroller.setWidgetResizable(True)
+
+        theme_area_widget = QWidget()
+        theme_area_scroller.setWidget(theme_area_widget)
+        theme_area_widget_layout = QVBoxLayout()
+        theme_area_widget.setLayout(theme_area_widget_layout)
 
         self.spawn_theme_loader()
 
     def handle_list_reload_click(self, e):
-        self.ui["reload_theme_list_button"].setDisabled(True)
-        select_theme_combo = self.ui["select_theme_combo"]
+        self.reload_theme_list_button.setDisabled(True)
+        select_theme_combo = self.select_theme_combo
         select_theme_combo.clear()
         select_theme_combo.addItem("Loading...")
         select_theme_combo.setEnabled(False)
@@ -92,9 +109,9 @@ class ThemeTool(Window):
         self.thread_pool.start(LoadThemesRunnable(self.accept_theme_list))
 
     def accept_theme_list(self, theme_list):
-        select_theme_combo = self.ui["select_theme_combo"]
+        select_theme_combo = self.select_theme_combo
         select_theme_combo.clear()
         for theme in theme_list:
             select_theme_combo.addItem(theme.title)
         select_theme_combo.setEnabled(True)
-        self.ui["reload_theme_list_button"].setDisabled(False)
+        self.reload_theme_list_button.setDisabled(False)

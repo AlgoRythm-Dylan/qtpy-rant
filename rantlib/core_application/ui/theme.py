@@ -70,6 +70,7 @@ def load_themes():
         for file in filenames:
             if file.lower().endswith(".json") and file != "web_themes.json":
                 theme = Theme()
-                theme.data(read_data_file(Path(theme_directory).joinpath(theme)), default={})
+                theme.data(read_data_file(Path(theme_directory).joinpath(file), default={}))
                 themes.append(theme)
         break
+    return themes

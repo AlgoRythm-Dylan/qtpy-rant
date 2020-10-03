@@ -3,15 +3,29 @@ from os.path import join
 import os
 import sys
 import json
-
-def create_data_dir():
-    os.mkdir(get_data_dir_path())
+from rantlib.core_application.ui.window.window_state import WindowState
 
 def get_data_dir_path():
     return join(expanduser("~"), ".qtpy-rant")
 
+def get_dir(path=get_data_dir_path()):
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
+def read_window_state(class_name):
+    state_data = read_data_file(join(get_dir(STD_PATH_WINDOW_STATE), f"{class_name}.json"))
+    window_state = WindowState()
+    if state_data != None:
+        window_state.data(state_data)
+    return window_state
+
+def write_window_state(class_name, window_state):
+    return write_data_file(join(get_dir(STD_PATH_WINDOW_STATE) + f"/{class_name}.json"), window_state)
+
 STD_PATH_AUTH = join(get_data_dir_path(), "auth.json")
 STD_PATH_CLI_CONFIG = join(get_data_dir_path(), "cli-config.json")
+STD_PATH_WINDOW_STATE = join(get_data_dir_path(), "window_state/")
 
 # Returns data file contents or `default` if file does not exist
 # Expects JSON data
@@ -27,6 +41,6 @@ def read_data_file(path, default=None):
 
 def write_data_file(path, data):
     file = open(path, "w+")
-    file.write(json.dumps(data))
+    file.write(json.dumps(data.__dict__))
     file.close()
     

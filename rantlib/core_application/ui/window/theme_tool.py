@@ -39,9 +39,7 @@ class ThemeTool(Window):
         sidebar_widget_layout = QVBoxLayout()
         sidebar_widget.setLayout(sidebar_widget_layout)
 
-        palette = sidebar_widget.palette()
-        palette.setColor(sidebar_widget.backgroundRole(), QColor("#f7f7f7"))
-        sidebar_widget.setPalette(palette)
+        sidebar_widget.setStyleSheet("QWidget { background-color: #ededed; color: black; }")
 
         sidebar_label = QLabel()
         sidebar_label.setWordWrap(True)
@@ -54,6 +52,7 @@ class ThemeTool(Window):
         theme_area_layout.setContentsMargins(0, 0, 0, 0)
         theme_area.setLayout(theme_area_layout)
         layout.addWidget(theme_area, 1)
+        theme_area.setStyleSheet("QWidget { background-color: #f7f7f7; color: black; }")
 
         select_theme_widget = QWidget()
         select_theme_layout = QHBoxLayout()
@@ -80,9 +79,6 @@ class ThemeTool(Window):
         reload_theme_list_button.mousePressEvent = self.handle_list_reload_click
         select_theme_layout.addWidget(reload_theme_list_button)
         self.reload_theme_list_button = reload_theme_list_button
-
-        authors_label = QLabel("Authors:")
-        sidebar_widget_layout.addWidget(authors_label, alignment=Qt.AlignTop)
 
         sidebar_widget_layout.addStretch()
 

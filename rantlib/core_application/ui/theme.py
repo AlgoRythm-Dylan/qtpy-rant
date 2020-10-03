@@ -45,8 +45,16 @@ class Theme:
         self.secondary_foreground = data.get("secondary_foreground", "#ffffff")
 
 
+def apply_theme_to_widget(element, theme):
+    name = get_theme_class_name(element.getObjectName())
+    if name == "devrant_window":
+        pass
+
 def apply_theme(root_element, theme):
-    pass
+    layout = root_element.layout()
+    if layout != None:
+        for i in range(0, layout.count()):
+            apply_theme(layout.itemAt(i), theme)
 
 def get_theme_class_name(item):
     if type(item) == str:

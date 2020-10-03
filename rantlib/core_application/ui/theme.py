@@ -1,6 +1,6 @@
 import requests
 import json
-from rantlib.core_application.data.storage import read_data_file
+from rantlib.core_application.storage import read_data_file
 from os import walk
 from pathlib import Path
 

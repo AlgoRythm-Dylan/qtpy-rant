@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from rantlib.core_application.ui.theme import apply_theme
-from rantlib.core_application.data.storage import read_window_state, write_window_state
+from rantlib.core_application.storage import read_window_state, write_window_state
 from rantlib.core_application.ui.window.window_state import WindowState
 from pathlib import Path
 

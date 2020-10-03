@@ -19,7 +19,10 @@ class EventEmitter:
     def dispatch(self, event_name, event):
         event_listeners = self.listeners.get(event_name)
         for event_listener in event_listeners:
-            event_listener.handle(event)
+            try:
+                event_listener.handle(event)
+            except Exception as ex:
+                print(ex)
 
     def on(self, event_name, handler):
         is_new = not event_name in self.listeners.keys()

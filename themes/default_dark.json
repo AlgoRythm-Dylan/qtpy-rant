@@ -1,19 +1,19 @@
 {
-    "title": "devRant Light",
-    "description": "A light color scheme (default)",
+    "title": "devRant Dark",
+    "description": "A dark color scheme",
     "authors": ["@dfox", "@trogus"],
     "enabled": true,
 
-    "background": "#ffffff",
-    "foreground": "#2f2f32",
+    "background": "#40415a",
+    "foreground": "#e3e3e3",
     "foreground_alt": "#aaaab8",
 
     "accent_background": "#d55161",
     "accent_foreground": "#ffffff",
 
-    "secondary_background": "#40415a",
+    "secondary_background": "#383952",
     "secondary_foreground": "#ffffff",
 
-    "vote_background": "#ccccd4",
+    "vote_background": "#808092",
     "vote_foreground": "#ffffff"
 }

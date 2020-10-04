@@ -13,6 +13,7 @@ class ThemeTool(Window):
         self.setMinimumSize(550, 450)
 
         self.thread_pool = QThreadPool()
+        self.themed_items = []
 
         widget = QWidget()
         layout = QHBoxLayout()
@@ -90,7 +91,48 @@ class ThemeTool(Window):
         theme_area_widget_layout = QVBoxLayout()
         theme_area_widget.setLayout(theme_area_widget_layout)
         theme_area_widget.setObjectName("theme_area_widget")
-        theme_area_widget.setStyleSheet("QWidget#theme_area_widget { background-color: white; color: black; }")
+        theme_area_widget.setStyleSheet("QWidget { background-color: white; color: black; }")
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_window"), alignment=Qt.AlignTop)
+        window_widget = QWidget()
+        window_widget.setObjectName("devrant_window")
+        window_widget.setFixedHeight(30)
+        theme_area_widget_layout.addWidget(window_widget, 1)
+        self.themed_items.append(window_widget)
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_panel"), alignment=Qt.AlignTop)
+        devrant_panel_widget = QWidget()
+        devrant_panel_widget.setObjectName("devrant_panel")
+        devrant_panel_widget.setFixedHeight(30)
+        theme_area_widget_layout.addWidget(devrant_panel_widget, 1)
+        self.themed_items.append(devrant_panel_widget)
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_accent_panel"), alignment=Qt.AlignTop)
+        devrant_accent_panel_widget = QWidget()
+        devrant_accent_panel_widget.setObjectName("devrant_accent_panel")
+        devrant_accent_panel_widget.setFixedHeight(30)
+        theme_area_widget_layout.addWidget(devrant_accent_panel_widget, 1)
+        self.themed_items.append(devrant_accent_panel_widget)
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_alt_label"), alignment=Qt.AlignTop)
+        devrant_alt_label_widget = QWidget()
+        devrant_alt_label_widget.setObjectName("devrant_alt_label")
+        devrant_alt_label_widget.setFixedHeight(30)
+        theme_area_widget_layout.addWidget(devrant_alt_label_widget, 1)
+        self.themed_items.append(devrant_alt_label_widget)
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_button"), alignment=Qt.AlignTop)
+        devrant_button_widget = QPushButton()
+        devrant_button_widget.setObjectName("devrant_button")
+        theme_area_widget_layout.addWidget(devrant_button_widget, 1)
+        self.themed_items.append(devrant_button_widget)
+
+        theme_area_widget_layout.addWidget(QLabel("devrant_vote_button"), alignment=Qt.AlignTop)
+        devrant_vote_button_widget = QPushButton()
+        devrant_vote_button_widget.setObjectName("devrant_vote_button")
+        theme_area_widget_layout.addWidget(devrant_vote_button_widget, 1)
+        self.themed_items.append(devrant_vote_button_widget)
+        theme_area_widget_layout.addStretch()
 
         self.spawn_theme_loader()
 

@@ -1,4 +1,7 @@
+from types import SimpleNamespace
+
 class Page:
 
     def __init__(self):
-        pass
+        self.root = None
+        self.ui = SimpleNamespace()

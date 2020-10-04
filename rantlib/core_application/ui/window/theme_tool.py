@@ -38,8 +38,8 @@ class ThemeTool(Window):
         sidebar_scroller.setWidget(sidebar_widget)
         sidebar_widget_layout = QVBoxLayout()
         sidebar_widget.setLayout(sidebar_widget_layout)
-
-        sidebar_widget.setStyleSheet("QWidget { background-color: #ededed; color: black; }")
+        sidebar_widget.setObjectName("sidebar_widget")
+        sidebar_widget.setStyleSheet("QWidget#sidebar_widget { background-color: #ededed; color: black; }")
 
         sidebar_label = QLabel()
         sidebar_label.setWordWrap(True)
@@ -52,7 +52,6 @@ class ThemeTool(Window):
         theme_area_layout.setContentsMargins(0, 0, 0, 0)
         theme_area.setLayout(theme_area_layout)
         layout.addWidget(theme_area, 1)
-        theme_area.setStyleSheet("QWidget { background-color: #f7f7f7; color: black; }")
 
         select_theme_widget = QWidget()
         select_theme_layout = QHBoxLayout()
@@ -90,6 +89,8 @@ class ThemeTool(Window):
         theme_area_scroller.setWidget(theme_area_widget)
         theme_area_widget_layout = QVBoxLayout()
         theme_area_widget.setLayout(theme_area_widget_layout)
+        theme_area_widget.setObjectName("theme_area_widget")
+        theme_area_widget.setStyleSheet("QWidget#theme_area_widget { background-color: white; color: black; }")
 
         self.spawn_theme_loader()
 

@@ -5,6 +5,7 @@ from os import walk
 from pathlib import Path
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from pathlib import Path
 
 class Theme:
 
@@ -133,7 +134,12 @@ def load_themes():
         for file in filenames:
             if file.lower().endswith(".json") and file != "web_themes.json":
                 theme = Theme()
-                theme.data(read_data_file(Path(theme_directory).joinpath(file), default={}))
+                theme_path = Path(theme_directory).joinpath(file)
+                theme.data(read_data_file(theme_path, default={}))
+                theme.source = theme_path
                 themes.append(theme)
         break
     return themes
+
+def source_name(self):
+    return Path(self.source).name

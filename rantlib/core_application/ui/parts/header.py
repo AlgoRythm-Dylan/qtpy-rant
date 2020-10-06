@@ -6,15 +6,12 @@ class Header(QWidget):
     def __init__(self):
         super().__init__()
 
-        palette = self.palette()
-        self.setAutoFillBackground(True)
-        palette.setColor(self.backgroundRole(), QColor("#40415a"))
-        self.setPalette(palette)
-
+        self.setObjectName("devrant_secondary_panel")
         self.setFixedHeight(60)
 
         self.label = QLabel()
         self.label.setText("devRant")
+        self.label.setStyleSheet("* { font-family: Comfortaa; font-size: 30px; }")
 
         layout = QBoxLayout(QBoxLayout.LeftToRight)
         layout.addWidget(self.label)

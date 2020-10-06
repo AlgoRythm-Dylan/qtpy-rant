@@ -3,6 +3,8 @@ from pathlib import Path
 from rantlib.core_application.client import Client
 from rantlib.core_application.ui.window.mainwindow import MainWindow
 from rantlib.core_application.ui.window.theme_tool import ThemeTool
+from rantlib.core_application.ui.theme import load_themes
+from rantlib.core_application.storage import read_data_file, STD_PATH_GUI_CONFIG
 
 try:
     from PyQt5.QtWidgets import QApplication
@@ -23,6 +25,8 @@ class QtClient(Client):
         self.comfortaa_font_family = QFontDatabase.applicationFontFamilies(comfortaa_id)[0]
         roboto_id = QFontDatabase.addApplicationFont(str(res_path.joinpath("Roboto-Regular.ttf")))
         self.roboto_font_family = QFontDatabase.applicationFontFamilies(roboto_id)[0]
+        self.config = read_data_file(STD_PATH_GUI_CONFIG)
+        self.config["active_theme_path"] = self.config.get("active_theme_path", "default.json")
         if qtpy.args.theme_tool:
             main_window = ThemeTool(qtpy)
             self.windows.append(main_window)

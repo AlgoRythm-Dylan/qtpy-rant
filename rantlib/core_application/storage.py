@@ -30,14 +30,15 @@ def write_window_state(class_name, window_state):
 
 # Returns data file contents or `default` if file does not exist
 # Expects JSON data
-def read_data_file(path, default=None):
+def read_data_file(path, default=None, print_error=False):
     data = default
     try:
         file = open(path, "r")
         data = json.loads(file.read())
         file.close()
     except Exception as e:
-        print(e, file=sys.stderr)
+        if print_error:
+            print(e, file=sys.stderr)
     return data
 
 def write_data_file(path, data):

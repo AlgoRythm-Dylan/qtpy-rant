@@ -160,3 +160,10 @@ class RantGetter:
             rant = Rant()
             rant.data(rant_data)
         return rants
+
+def login(username, password):
+    data = requests.post(LOGIN_URL, data={"username": username, "password": password}).json()
+    if data.get("success") == False:
+        raise data.get("message")
+    else:
+        return data

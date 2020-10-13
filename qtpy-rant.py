@@ -9,15 +9,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from rantlib.core_application.nogui.client import TerminalClient
 from rantlib.core_application.ui.client import QtClient
 from rantlib.core_application.event import EventEmitter
+from rantlib.core_application.auth import AuthService
 
-class QtPyApp:
+class QtPyApp(EventEmitter):
 
     def __init__(self):
+        super().__init__()
         self.gui_mode = True
         self.args = None
         self.client = None
         self.current_user = None
-        self.event_emitter = EventEmitter()
+        self.auth_service = AuthService()
 
     def is_guest_mode(self):
         return self.current_user == None

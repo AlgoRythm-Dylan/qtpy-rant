@@ -8,6 +8,8 @@
 import json
 import requests
 
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
 
 class Image:
 
@@ -162,8 +164,9 @@ class RantGetter:
         return rants
 
 def login(username, password):
-    data = requests.post(LOGIN_URL, data={"username": username, "password": password}).json()
-    if data.get("success") == False:
-        raise data.get("message")
+    data = requests.post(LOGIN_URL, data={"username": username, "password": password})
+    status_code = data.status_code
+    if status_code != HTTP_OK:
+        raise data.get("error")
     else:
         return data

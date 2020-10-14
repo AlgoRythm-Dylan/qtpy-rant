@@ -3,7 +3,7 @@ from pathlib import Path
 from rantlib.core_application.client import Client
 from rantlib.core_application.ui.window.mainwindow import MainWindow
 from rantlib.core_application.ui.window.theme_tool import ThemeTool
-from rantlib.core_application.ui.theme import load_themes
+from rantlib.core_application.ui.theme import load_theme
 from rantlib.core_application.storage import read_data_file, STD_PATH_GUI_CONFIG
 from rantlib.core_application.ui.config import UIConfig
 
@@ -26,18 +26,18 @@ class QtClient(Client):
         self.comfortaa_font_family = QFontDatabase.applicationFontFamilies(comfortaa_id)[0]
         roboto_id = QFontDatabase.addApplicationFont(str(res_path.joinpath("Roboto-Regular.ttf")))
         self.roboto_font_family = QFontDatabase.applicationFontFamilies(roboto_id)[0]
-        config_data = read_data_file(STD_PATH_GUI_CONFIG, default={})
         self.config = UIConfig()
-        self.config.data(config_data)
-        if qtpy.args.theme_tool:
-            main_window = ThemeTool(qtpy)
+        self.config.read_data_file(STD_PATH_GUI_CONFIG)
+        self.theme = load_theme(self.config.get("theme_file"))
+
+    def run(self):
+        if self.qtpy.args.theme_tool:
+            main_window = ThemeTool(self.qtpy)
             self.windows.append(main_window)
             self.main_window = main_window
         else:
-            main_window = MainWindow(qtpy)
+            main_window = MainWindow(self.qtpy)
             self.windows.append(main_window)
             self.main_window = main_window
-
-    def run(self):
         self.main_window.show()
         self.qapplication.exec_()

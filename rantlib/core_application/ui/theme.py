@@ -5,6 +5,7 @@ from os import walk
 from pathlib import Path
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QWidgetItem
 from pathlib import Path
 
 class Theme:
@@ -58,7 +59,10 @@ def qss(styles, apply_to="*"):
     return qss_str + "}"
 
 def apply_theme_to_widget(client, element, theme):
-    name = get_theme_class_name(element.objectName())
+    try:
+        name = get_theme_class_name(element.objectName())
+    except:
+        return # Can't theme this item
     if name == "devrant_window" or name == "devrant_panel":
         element.setStyleSheet(qss({
             "background-color": theme.background,
@@ -105,12 +109,26 @@ def apply_theme_to_widget(client, element, theme):
             "padding": "0px"
         }))
         element.setCursor(Qt.PointingHandCursor)
+    elif name == "devrant_title_label":
+        element.setStyleSheet(qss({
+            "font-family": "Comfortaa",
+            "font-size": "30px",
+            "margin": "0px",
+            "padding": "0px"
+        }))
 
-def apply_theme(client, root_element, theme):
+def apply_theme(client, root_element, theme=None):
+    if theme == None:
+        theme = client.theme
     layout = root_element.layout()
     if layout != None:
+        apply_theme_to_widget(client, root_element, theme)
         for i in range(0, layout.count()):
             apply_theme(client, layout.itemAt(i), theme)
+    elif type(root_element) == QWidgetItem:
+        apply_theme(client, root_element.widget(), theme)
+    else:
+        apply_theme_to_widget(client, root_element, theme)
 
 def get_theme_class_name(item):
     if type(item) == str:
@@ -126,6 +144,11 @@ def get_theme_class_name(item):
 
 def get_theme_directory():
     return Path(__file__).parent.parent.parent.parent.joinpath("themes")
+
+def load_theme(file_name):
+    theme = Theme()
+    theme.data(read_data_file(get_theme_directory().joinpath(file_name), default={}))
+    return theme
 
 def load_themes():
     theme_directory = get_theme_directory()

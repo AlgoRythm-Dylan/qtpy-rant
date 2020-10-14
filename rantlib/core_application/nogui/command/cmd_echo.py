@@ -5,7 +5,7 @@ class EchoCommand(Command):
     def __init__(self):
         super().__init__()
         self.description = "The sanity check command. Repeats whatever you tell it"
-        self.usage = "<command> <arguments>"
+        self.usage = "echo <?arguments>"
 
     def execute(self, args):
         print(" ".join(args.args))

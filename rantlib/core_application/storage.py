@@ -9,6 +9,7 @@ def get_data_dir_path():
     return join(expanduser("~"), ".qtpy-rant")
 
 STD_PATH_AUTH = join(get_data_dir_path(), "auth.json")
+STD_PATH_APP_CONFIG = join(get_data_dir_path(), "app-config.json")
 STD_PATH_CLI_CONFIG = join(get_data_dir_path(), "cli-config.json")
 STD_PATH_GUI_CONFIG = join(get_data_dir_path(), "gui-config.json")
 STD_PATH_WINDOW_STATE = join(get_data_dir_path(), "window_state/")

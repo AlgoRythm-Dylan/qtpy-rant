@@ -24,5 +24,6 @@
     "cli_command_failure": "Command failed",
 
     "cli_hint_exit": "Welcome to CLI mode. Type \"exit\" to exit",
-    "cli_hint_usage": "Usage"
+    "cli_hint_usage": "Usage",
+    "cli_rant_label": "Rant {RANT} by {USER}"
 }

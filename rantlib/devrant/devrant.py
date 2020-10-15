@@ -58,18 +58,19 @@ class Rant:
         self.score = data["score"]
         self.created_time = data["created_time"]
         self.attached_image = Image()
-        self.attached_image.data(data["attached_image"])
+        if data["attached_image"] != "":
+            self.attached_image.data(data["attached_image"])
         self.num_comments = data["num_comments"]
         self.tags = data["tags"]
         self.vote_state = data["vote_state"]
         self.user_id = data["user_id"]
         self.user_username = data["user_username"]
         self.user_score = data["user_score"]
-        self.user_avatar = profileImage()
+        self.user_avatar = ProfileImage()
         self.user_avatar.data(data["user_avatar"])
-        self.user_avatar_lg = profileImage()
+        self.user_avatar_lg = ProfileImage()
         self.user_avatar_lg.data(data["user_avatar_lg"])
-        self.user_dpp = data["user_dpp"]
+        self.user_dpp = data.get("user_dpp", False)
 
 # Data object for a user
 class User:
@@ -151,7 +152,11 @@ class RantGetter:
         self.token_key = None
         self.user_id = None
 
-    def get(amount=self.stride, mode=self.mode):
+    def get(self, amount=None, mode=None):
+        if amount == None:
+            amount = self.stride
+        if mode == None:
+            mode = self.sort
         url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={self.time_range}&limit={amount}&skip={self.skip}"
         if self.token_id != None:
             url += f"&token_id={self.token_id}&token_key={self.token_key}&user_id={self.user_id}"
@@ -161,6 +166,7 @@ class RantGetter:
         for rant_data in data["rants"]:
             rant = Rant()
             rant.data(rant_data)
+            rants.append(rant)
         return rants
 
 def login(username, password):

@@ -10,7 +10,7 @@ VERSION = "0.0.0"
 
 from rantlib.core_application.nogui.client import TerminalClient
 from rantlib.core_application.ui.client import QtClient
-from rantlib.core_application.event import EventEmitter
+from rantlib.core_application.event.event import EventEmitter
 from rantlib.core_application.auth import AuthService
 from rantlib.core_application.config import QtPyRantConfig
 from rantlib.core_application.lang import load_language

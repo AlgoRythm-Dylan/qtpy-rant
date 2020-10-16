@@ -5,6 +5,9 @@ class Command:
         self.usage = "<command>"
         self.parser = None
 
+    def shutdown(self):
+        pass
+
     def help(self):
         print(f"Usage: {self.usage}")
 

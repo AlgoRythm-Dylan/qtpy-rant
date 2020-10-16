@@ -2,6 +2,15 @@ class Event:
 
     def __init__(self):
         self.cancelled = False
+        self.is_cancellable = True
+        self.stopped = False
+
+    def cancel(self):
+        if not self.is_cancellable:
+            raise Exception("Event is not cancellable")
+
+    def stop(self):
+        self.stopped = True
 
 class EventHandler:
 
@@ -18,6 +27,8 @@ class EventEmitter:
 
     def dispatch(self, event_name, event):
         event_listeners = self.listeners.get(event_name)
+        if event_listeners == None:
+            return
         for event_listener in event_listeners:
             try:
                 event_listener.handle(event)

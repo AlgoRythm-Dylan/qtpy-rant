@@ -25,5 +25,7 @@
 
     "cli_hint_exit": "Welcome to CLI mode. Type \"exit\" to exit",
     "cli_hint_usage": "Usage",
-    "cli_rant_label": "Rant {RANT} by {USER}"
+    "cli_rant_label": "Rant {RANT} by {USER}",
+    "cli_rant_command_description": "The rant command",
+    "cli_rant_command_help_lines": ["The rant command", "Execute with no arguments to get a rant", "This has the same effect as executing \"rant next\""]
 }

@@ -46,6 +46,8 @@ class SetCommand(Command):
 
 # Braindead simple bullshit
 def parse_type(arg):
+    if arg == "None":
+        return None
     try:
         int(arg)
         if arg.find(".") != -1:

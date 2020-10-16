@@ -22,6 +22,7 @@ class RantCommand(Command):
         print(rant.text)
 
     def help(self):
+        Command.help(self)
         print("The rant command")
         print("Execute with no arguments to get a rant")
         print("This has the same effect as executing \"rant next\"")

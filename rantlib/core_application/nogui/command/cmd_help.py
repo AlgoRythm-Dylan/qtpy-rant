@@ -24,6 +24,7 @@ class HelpCommand(Command):
                 print(self.client.qtpy.language.get("cli_unknown_command"))
 
     def help(self):
+        Command.help(self)
         print("This is the help command. You can call it with no arguments to get a description of all commands.")
         print("You can also pass a command as an argument to get more detailed help, if the command provides it.")
 

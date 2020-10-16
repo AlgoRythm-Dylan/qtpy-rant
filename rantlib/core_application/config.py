@@ -13,6 +13,21 @@ class Config:
     def get(self, value, default=None):
         return self.values.get(value, default)
 
+    def set(self, key, value):
+        self.values[key] = value
+
+    def remove(self, key):
+        del self.values[key]
+
+    def has_default(self, key):
+        return key in self.defaults.keys()
+
+    def restore_default(self, key):
+        if not self.has_default(key):
+            raise Exception("Key does not have a default")
+        else:
+            self.values[key] = self.defaults[key]
+
     def ensure_defaults(self):
         values_keys = self.values.keys()
         for key, value in self.defaults.items():

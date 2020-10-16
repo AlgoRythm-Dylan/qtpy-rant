@@ -6,7 +6,7 @@ class Command:
         self.parser = None
 
     def help(self):
-        print(self.usage)
+        print(f"Usage: {self.usage}")
 
     def execute(self, args):
         print("You ran a default command!")

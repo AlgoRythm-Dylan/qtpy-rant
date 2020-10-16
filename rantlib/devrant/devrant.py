@@ -31,46 +31,7 @@ class ProfileImage:
 
     def data(self, data):
         self.background_color = data["b"]
-        self.image_url = data["i"]
-
-# Data object for a rant
-class Rant:
-
-    def __init__(self):
-        self.id = None
-        self.text = None
-        self.score = None
-        self.created_time = None
-        self.attached_image = None
-        self.num_comments = None
-        self.tags = None
-        self.vote_state = None
-        self.user_id = None
-        self.user_username = None
-        self.user_score = None
-        self.user_avatar = None
-        self.user_avatar_lg = None
-        self.user_dpp = None
-
-    def data(self, data):
-        self.id = data["id"]
-        self.text = data["text"]
-        self.score = data["score"]
-        self.created_time = data["created_time"]
-        self.attached_image = Image()
-        if data["attached_image"] != "":
-            self.attached_image.data(data["attached_image"])
-        self.num_comments = data["num_comments"]
-        self.tags = data["tags"]
-        self.vote_state = data["vote_state"]
-        self.user_id = data["user_id"]
-        self.user_username = data["user_username"]
-        self.user_score = data["user_score"]
-        self.user_avatar = ProfileImage()
-        self.user_avatar.data(data["user_avatar"])
-        self.user_avatar_lg = ProfileImage()
-        self.user_avatar_lg.data(data["user_avatar_lg"])
-        self.user_dpp = data.get("user_dpp", False)
+        self.image_url = data.get("i", None)
 
 # Data object for a user
 class User:
@@ -115,6 +76,44 @@ class User:
         self.avatar_sm = ProfileImage()
         self.avatar_sm.data(data["avatar_sm"])
 
+# Data object for a rant
+class Rant:
+
+    def __init__(self):
+        self.id = None
+        self.text = None
+        self.score = None
+        self.created_time = None
+        self.attached_image = None
+        self.num_comments = None
+        self.tags = None
+        self.vote_state = None
+        self.user_avatar = None
+        self.user = None
+        self.user_avatar_lg = None
+        self.user_dpp = None
+
+    def data(self, data):
+        self.id = data["id"]
+        self.text = data["text"]
+        self.score = data["score"]
+        self.created_time = data["created_time"]
+        self.attached_image = Image()
+        if data["attached_image"] != "":
+            self.attached_image.data(data["attached_image"])
+        self.num_comments = data["num_comments"]
+        self.tags = data["tags"]
+        self.vote_state = data["vote_state"]
+        self.user = User()
+        self.user.id = data["user_id"]
+        self.user.username = data["user_username"]
+        self.user.score = data["user_score"]
+        self.user_avatar = ProfileImage()
+        self.user_avatar.data(data["user_avatar"])
+        self.user_avatar_lg = ProfileImage()
+        self.user_avatar_lg.data(data["user_avatar_lg"])
+        self.user_dpp = data.get("user_dpp", False)
+
 # Data object for a comment
 class Comment:
 
@@ -140,34 +139,6 @@ def get_user(user_id):
     user = User()
     user.data(requests.get(url).json())
     return user
-
-class RantGetter:
-
-    def __init__(self):
-        self.skip = 0
-        self.stride = 50
-        self.sort = "algo" # algo, top, recent
-        self.time_range = "day" # day, week, month, all
-        self.token_id = None
-        self.token_key = None
-        self.user_id = None
-
-    def get(self, amount=None, mode=None):
-        if amount == None:
-            amount = self.stride
-        if mode == None:
-            mode = self.sort
-        url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={self.time_range}&limit={amount}&skip={self.skip}"
-        if self.token_id != None:
-            url += f"&token_id={self.token_id}&token_key={self.token_key}&user_id={self.user_id}"
-        self.skip += amount
-        data = requests.get(url).json()
-        rants = []
-        for rant_data in data["rants"]:
-            rant = Rant()
-            rant.data(rant_data)
-            rants.append(rant)
-        return rants
 
 def login(username, password):
     data = requests.post(LOGIN_URL, data={"username": username, "password": password})

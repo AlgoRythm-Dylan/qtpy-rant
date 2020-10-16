@@ -1,4 +1,4 @@
- from rantlib.core_application.storage import read_data_file
+from rantlib.core_application.storage import read_data_file
 from pathlib import Path
 
 def load_language(lang_code):
@@ -15,6 +15,7 @@ def load_language(lang_code):
         base_lang[key] = value
     return base_lang
 
-def simple_replace(str, replacements):
+def simple_replace(template, replacements):
     for replacement, value in replacements.items():
-        str.replace("{" + replacement + "}", value)
+        template = template.replace("{" + str(replacement) + "}", str(value))
+    return template

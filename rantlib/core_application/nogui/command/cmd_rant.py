@@ -1,5 +1,5 @@
 from rantlib.core_application.nogui.command.command import Command
-from rantlib.devrant.devrant import RantGetter
+from rantlib.devrant.ezrant import RantGetter
 from rantlib.core_application.lang import simple_replace
 
 class RantCommand(Command):
@@ -10,11 +10,14 @@ class RantCommand(Command):
         self.description = "The rant command"
         self.usage = "rant <?next|open>"
         self.rant_getter = RantGetter()
-        self.rant_getter.stride = 1
+        self.rant_getter.stride = 20
+        self.rant_buffer = []
 
     def execute(self, args):
-        rant = self.rant_getter.get()[0]
-        rant_label = "Rant"#simple_replace(self.client.qtpy.languange.get("cli_rant_label"), {"RANT": rant.id, "USER": rant.user.nam})
+        if len(self.rant_buffer) == 0:
+            self.rant_buffer = self.rant_getter.get()
+        rant = self.rant_buffer.pop()
+        rant_label = simple_replace(self.client.qtpy.language.get("cli_rant_label"), {"RANT": rant.id, "USER": rant.user.username})
         print(f"{'-'*10}\n\t{rant_label}\n{'-'*10}\n")
         print(rant.text)
 

@@ -57,7 +57,7 @@ class TerminalClient(Client):
         executor = command_register_event.executor
         alias = command_register_event.alias
         overwrite = command_register_event.overwrite
-        
+
         insert = name not in self.commands or overwrite
         if insert:
             self.commands[name] = executor
@@ -67,6 +67,9 @@ class TerminalClient(Client):
             pass
         if executor.parser:
             executor.parser.error = generic_error_thrower
+
+        command_registered_event = CommandRegisteredEvent(name, executor, alias, overwrite)
+        self.qtpy.dispatch("command_registered", command_registered_event)
 
     def import_commands(self):
         commands_path = Path(__file__).parent.joinpath("command")

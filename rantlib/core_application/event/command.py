@@ -35,7 +35,9 @@ class CommandExecutedEvent(CommandExecuteEvent):
         self.error = error
         self.is_cancellable = False
 
-# Executes before a command is registerred
+# Executes before a command is registered
+# If cancelled, the command is not registered
+# name, executor, alias, and overwrite can be modified
 class CommandRegisterEvent(Event):
 
     def __init__(self, name, executor, alias, overwrite):
@@ -45,7 +47,8 @@ class CommandRegisterEvent(Event):
         self.alias = alias
         self.overwrite = overwrite
 
-class CommandRegisteredEvent(Event):
+# Executes after a command is registered
+class CommandRegisteredEvent(CommandRegisterEvent):
 
     def __init__(self, name, executor, alias, overwrite):
         super().__init__(name, executor, alias, overwrite)

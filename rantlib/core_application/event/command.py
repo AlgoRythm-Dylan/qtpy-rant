@@ -34,3 +34,19 @@ class CommandExecutedEvent(CommandExecuteEvent):
         super().__init__(executor, arguments, command_text)
         self.error = error
         self.is_cancellable = False
+
+# Executes before a command is registerred
+class CommandRegisterEvent(Event):
+
+    def __init__(self, name, executor, alias, overwrite):
+        super().__init__()
+        self.name = name
+        self.executor = executor
+        self.alias = alias
+        self.overwrite = overwrite
+
+class CommandRegisteredEvent(Event):
+
+    def __init__(self, name, executor, alias, overwrite):
+        super().__init__(name, executor, alias, overwrite)
+        self.is_cancellable = False

@@ -125,6 +125,7 @@ Base class methods:
 
 * `help`: Executed when the help command is used on your command
 * `execute`: Called when your command is called by the user
+* `shutdown`: Called when your command is shut down by the system
 
 ## description
 The help command reads this field when listing all available
@@ -195,3 +196,8 @@ The raw text is all of the text of the arguments (The command is removed):
 
 `args` depends on whether you have set your `parser` member variable.
 [Read more](#parser) about the args object's potential values
+
+## shutdown
+A function called when your command is shut down by the system (for
+example, if your command was reloaded). Allows you to gracefully
+exit.s

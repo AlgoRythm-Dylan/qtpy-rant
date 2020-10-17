@@ -7,7 +7,7 @@
 import sys
 from os import walk
 from pathlib import Path
-from importlib import import_module
+from importlib import import_module, reload
 from getpass import getpass
 
 from rantlib.core_application.client import Client
@@ -49,6 +49,15 @@ class TerminalClient(Client):
         return prompt
 
     def register_command(self, name, executor, alias=None, overwrite=False):
+        command_register_event = CommandRegisterEvent(name, executor, alias, overwrite)
+        self.qtpy.dispatch("register_command", command_register_event)
+        if command_register_event.cancelled:
+            return
+        name = command_register_event.name
+        executor = command_register_event.executor
+        alias = command_register_event.alias
+        overwrite = command_register_event.overwrite
+        
         insert = name not in self.commands or overwrite
         if insert:
             self.commands[name] = executor
@@ -64,8 +73,7 @@ class TerminalClient(Client):
         for dirpath, dirnames, filenames in walk(commands_path):
             for file in filenames:
                 if file.startswith("cmd_"):
-                    imported_module = import_module(f"rantlib.core_application.nogui.command.{file[:file.find('.py')]}")
-                    imported_module.register(self)
+                    self.import_module(f"rantlib.core_application.nogui.command.{file[:file.find('.py')]}")
             break
 
     def run(self):
@@ -89,11 +97,19 @@ class TerminalClient(Client):
         except Exception as e:
             shutdown_error = e
             print(f"Command did not shutdown correctly and may misbehave: {e}")
-        post_shutdown_event = CommandPostShutdownEvent(command, error=error)
-        self.qtpy.dispatch("command_post_shutdown". post_shutdown_event)
+        post_shutdown_event = CommandPostShutdownEvent(command, error=shutdown_error)
+        self.qtpy.dispatch("command_post_shutdown", post_shutdown_event)
         # Clear out the executor from aliases and commands dict
         del self.commands[command_text]
         # re-import with .__module__
+        self.import_module(command.__module__)
+
+    def import_module(self, modstr):
+        try:
+            imported_module = import_module(modstr)
+            imported_module.register(self)
+        except Exception as e:
+            print(f"Could not import module {modstr}: {e}")
     
     def execute_text(self, raw_command_text):
         if raw_command_text == self.qtpy.language.get("cli_exit"):

@@ -16,6 +16,9 @@ from rantlib.core_application.nogui.config import TerminalConfig
 from rantlib.core_application.storage import STD_PATH_CLI_CONFIG
 from rantlib.core_application.event.command import *
 
+from rantlib.core_application.nogui.util import *
+
+
 def generic_error_thrower(message):
     raise Exception(message)
 
@@ -80,6 +83,9 @@ class TerminalClient(Client):
             break
 
     def run(self):
+        """box = Box(self.config.get("preferred_width"))
+        box.add_section("\ndude")
+        print(box.render())"""
         self.do_login_flow()
         while True:
             raw_command_text = input(self.get_prompt())

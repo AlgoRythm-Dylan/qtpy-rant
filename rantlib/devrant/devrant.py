@@ -98,8 +98,8 @@ class Rant:
         self.text = data["text"]
         self.score = data["score"]
         self.created_time = data["created_time"]
-        self.attached_image = Image()
         if data["attached_image"] != "":
+            self.attached_image = Image()
             self.attached_image.data(data["attached_image"])
         self.num_comments = data["num_comments"]
         self.tags = data["tags"]
@@ -113,6 +113,9 @@ class Rant:
         self.user_avatar_lg = ProfileImage()
         self.user_avatar_lg.data(data["user_avatar_lg"])
         self.user_dpp = data.get("user_dpp", False)
+
+    def has_image(self):
+        return self.attached_image != None
 
 # Data object for a comment
 class Comment:

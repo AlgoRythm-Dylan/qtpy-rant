@@ -9,6 +9,12 @@
     "guest": "Guest",
     "username": "Username",
     "password": "Password",
+    "comments": "Comments",
+    "user": "User",
+    "rant": "Rant",
+    "score": "Score",
+    "rant_id": "Rant ID",
+    "image": "Image",
 
     "app_short_desc": "The hackable, plugin-able, Qt-based, Python-powered devRant client",
 

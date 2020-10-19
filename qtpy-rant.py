@@ -6,7 +6,7 @@ from pathlib import Path
 # Append current directory to PYTHONPATH to load our libraries
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
-VERSION = "0.0.0"
+VERSION = "0.1.0"
 
 from rantlib.core_application.nogui.client import TerminalClient
 from rantlib.core_application.ui.client import QtClient

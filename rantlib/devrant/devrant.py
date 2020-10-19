@@ -33,6 +33,18 @@ class ProfileImage:
         self.background_color = data["b"]
         self.image_url = data.get("i", None)
 
+class Auth:
+
+    def __init__(self):
+        self.id = None
+        self.key = None
+        self.expire_time = None
+
+    def data(self, data):
+        self.id = data["id"]
+        self.id = data["key"]
+        self.id = data["expire_time"]
+
 # Data object for a user
 class User:
 
@@ -51,6 +63,7 @@ class User:
         self.dpp = None
         self.avatar = None
         self.avatar_sm = None
+        self.auth = None
 
     def data(self, data):
         self.username = data["username"]
@@ -144,9 +157,14 @@ def get_user(user_id):
     return user
 
 def login(username, password):
-    data = requests.post(LOGIN_URL, data={"username": username, "password": password})
-    status_code = data.status_code
+    req = requests.post(LOGIN_URL, data={"username": username, "password": password, "app": APP_VERSION})
+    status_code = req.status_code
+    data = req.json()
     if status_code != HTTP_OK:
-        raise data.get("error")
+        raise Exception(data.get("error"))
     else:
-        return data
+        user = User()
+        user.id = data.get("user_id")
+        user.auth = Auth()
+        user.auth.data(data)
+        return user

@@ -16,6 +16,9 @@ class RantCommand(Command):
         self.last_rant = None
 
     def execute(self, args):
+        self.display_rant()
+
+    def display_rant(self):
         if len(self.rant_buffer) == 0:
             self.rant_buffer = self.rant_getter.get()
         rant = self.rant_buffer.pop()

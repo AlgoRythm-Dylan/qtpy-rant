@@ -66,28 +66,42 @@ class User:
         self.auth = None
 
     def data(self, data):
-        self.username = data["username"]
-        self.score = data["score"]
-        self.about = data["about"]
-        self.location = data["location"]
-        self.id = data["id"]
-        self.created_time = data["created_time"]
-        self.skills = data["skills"]
-        self.github = data["github"]
-        self.website = data["website"]
-        self.content["rants"] = data["content"]["rants"]
-        self.content["upvoted"] = data["content"]["upvoted"]
-        self.content["comments"] = data["content"]["comments"]
-        self.content["favorites"] = data["content"]["favorites"]
-        self.counts["rants"] = data["counts"]["rants"]
-        self.counts["upvoted"] = data["counts"]["upvoted"]
-        self.counts["comments"] = data["counts"]["comments"]
-        self.counts["favorites"] = data["counts"]["favorites"]
-        self.dpp = data["dpp"]
+        profile = data["profile"]
+        self.username = profile.get("username")
+        self.score = profile.get("score")
+        self.about = profile.get("about")
+        self.location = profile.get("location")
+        self.created_time = profile.get("created_time")
+        self.skills = profile.get("skills")
+        self.github = profile.get("github")
+        self.website = profile.get("website")
+        content = profile["content"]["content"]
+        self.content["rants"] = content["rants"]
+        self.content["upvoted"] = content["upvoted"]
+        self.content["comments"] = content["comments"]
+        self.content["favorites"] = content["favorites"]
+        counts = profile["content"]["counts"]
+        self.counts["rants"] = counts["rants"]
+        self.counts["upvoted"] = counts["upvoted"]
+        self.counts["comments"] = counts["comments"]
+        self.counts["favorites"] = counts["favorites"]
+        self.dpp = profile.get("dpp")
         self.avatar = ProfileImage()
-        self.avatar.data(data["avatar"])
+        self.avatar.data(profile["avatar"])
         self.avatar_sm = ProfileImage()
-        self.avatar_sm.data(data["avatar_sm"])
+        self.avatar_sm.data(profile["avatar_sm"])
+
+    def is_dpp(self):
+        return self.dpp == True
+
+    def load(self):
+        if self.id == None and self.username == None:
+            raise Exception("User ID or name required for this operation")
+        if self.id == None:
+            self.id = username_to_user_id(self.username)
+        self.data(get_user(self.id, raw_data=True))
+
+
 
 # Data object for a rant
 class Rant:
@@ -148,13 +162,27 @@ COLLABS_URL = DEVRANT_URL + "/collabs"
 
 def username_to_user_id(username):
     url = f"{USER_ID_URL}?app={APP_VERSION}&username={username}"
-    return requests.get(url).json()
+    request = requests.get(url)
+    data = request.json()
+    if request.status_code == HTTP_OK:
+        return data["user_id"]
+    else:
+        raise Exception(data.get("error"))
 
-def get_user(user_id):
+def get_user(user_id, raw_data=False):
     url = f"{USERS_URL}/{user_id}?app={APP_VERSION}&content=all"
     user = User()
-    user.data(requests.get(url).json())
-    return user
+    request = requests.get(url)
+    if request.status_code == HTTP_OK:
+        data = request.json()
+        if raw_data:
+            return data
+        else:
+            user = User()
+            user.data(data)
+            return user
+    else:
+        raise Exception(data.get("error"))
 
 def login(username, password):
     req = requests.post(LOGIN_URL, data={"username": username, "password": password, "app": APP_VERSION})
@@ -168,3 +196,9 @@ def login(username, password):
         user.auth = Auth()
         user.auth.data(data)
         return user
+
+
+if __name__ == "__main__":
+    user = User()
+    user.username = "AlgoRythm"
+    user.load()

@@ -26,6 +26,7 @@ class TerminalClient(Client):
 
     def __init__(self, qtpy):
         super().__init__(qtpy)
+        self.version = "0.1.0"
         self.commands = {}
         self.aliases = {}
         self.config = TerminalConfig()

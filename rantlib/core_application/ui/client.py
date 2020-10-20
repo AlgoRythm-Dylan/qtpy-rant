@@ -19,6 +19,7 @@ class QtClient(Client):
 
     def __init__(self, qtpy):
         super().__init__(qtpy)
+        self.version = "0.1.0"
         self.qapplication = QApplication(sys.argv)
         self.windows = []
         res_path = Path(__file__).parent.parent.parent.parent.joinpath("res")

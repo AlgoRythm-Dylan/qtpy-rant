@@ -39,6 +39,7 @@ class Auth:
         self.id = None
         self.key = None
         self.expire_time = None
+        self.username = None
 
     def data(self, data):
         self.id = data["id"]
@@ -113,6 +114,7 @@ class Rant:
         self.created_time = None
         self.attached_image = None
         self.num_comments = None
+        self.comments = []
         self.tags = None
         self.vote_state = None
         self.user_avatar = None
@@ -149,6 +151,26 @@ class Comment:
 
     def __init__(self):
         self.id = None
+        self.rant_id = None
+        self.body = None
+        self.score = None
+        self.created_time = None
+        self.vote_state = None
+        self.user = None
+
+    def data(self, data):
+        self.id = data["id"]
+        self.rant_id = data["rant_id"]
+        self.body = data["body"]
+        self.score = data["score"]
+        self.created_time = data["created_time"]
+        self.vote_state = data["vote_state"]
+        self.user = User()
+        self.user.id = data["user_id"]
+        self.user.username = data["user_username"]
+        self.user.score = data["user_score"]
+        self.user.user_avatar = ProfileImage()
+        self.user.user_avatar.data(data["user_avatar"])
 
 APP_VERSION = "3"
 BASE_URL  = "https://devrant.com/api"

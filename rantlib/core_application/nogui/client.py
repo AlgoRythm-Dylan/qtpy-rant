@@ -7,7 +7,7 @@
 import sys
 from os import walk
 from pathlib import Path
-from importlib import import_module, reload
+from importlib import import_module
 from getpass import getpass
 
 from rantlib.core_application.client import Client
@@ -84,9 +84,6 @@ class TerminalClient(Client):
             break
 
     def run(self):
-        """box = Box(self.config.get("preferred_width"))
-        box.add_section("\ndude")
-        print(box.render())"""
         self.do_login_flow()
         while True:
             raw_command_text = input(self.get_prompt())

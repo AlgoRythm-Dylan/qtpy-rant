@@ -22,7 +22,8 @@ class RantCommand(Command):
         if len(self.rant_buffer) == 0:
             self.rant_buffer = self.rant_getter.get()
         rant = self.rant_buffer.pop()
-        self.last_rant = rant
+        self.client.temp_data["rant"] = rant
+        self.client.temp_data["comment_index"] = 0
         box = Box(self.client.config.get("preferred_width"))
         score_string = f"{self.client.qtpy.language.get('score')}: {rant.score}, "
         score_string += f"{self.client.qtpy.language.get('rant_id')}: {rant.id}"

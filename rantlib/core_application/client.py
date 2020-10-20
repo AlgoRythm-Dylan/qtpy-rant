@@ -6,6 +6,7 @@ class Client:
     def __init__(self, qtpy):
         self.qtpy = qtpy
         self.version = None
+        self.temp_data = {}
 
     def run(self):
         pass

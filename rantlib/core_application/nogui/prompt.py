@@ -91,7 +91,6 @@ class Prompt:
             i += 1
 
     def print(self):
-        do_windows_attrs()
         if not self.is_compiled():
             self.compile()
         now = datetime.now()
@@ -101,9 +100,11 @@ class Prompt:
             elif token.token_type == TOKEN_TYPE_INSTRUCTION:
                 if token.text == "[user]":
                     # Find user
-                    user = self.client.qtpy.auth_service.current_user().username
+                    user = self.client.qtpy.auth_service.current_user()
                     if user == None:
                         user = "Guest"
+                    else:
+                        user = user.username
                     print(user, end="")
                 elif token.text == "[time12]":
                     # Print HH:MM:AM

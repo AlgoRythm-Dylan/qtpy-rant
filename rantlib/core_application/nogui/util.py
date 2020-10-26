@@ -76,6 +76,7 @@ def reset():
     if windows_mode:
         windows_current_bg = windows_bg["black"]
         windows_current_fg = windows_fg["white"]
+        print("Here")
         do_windows_attrs()
     else:
         nix_color_code("00")
@@ -87,6 +88,7 @@ def console_color(color, bg=False):
             windows_current_fg = windows_fg[color]
         else:
             windows_current_bg = windows_bg[color]
+        print("Here")
         do_windows_attrs()
     else:
         nix_color_code(nix_colors[color])

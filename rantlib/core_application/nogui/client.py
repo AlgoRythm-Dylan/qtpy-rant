@@ -90,6 +90,7 @@ class TerminalClient(Client):
         self.do_login_flow()
         while True:
             self.command_count += 1
+            self.prompt.compile(self.config.get("prompt"))
             self.prompt.print()
             raw_command_text = input()
             self.execute_text(raw_command_text)

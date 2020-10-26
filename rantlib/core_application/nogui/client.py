@@ -15,8 +15,7 @@ from rantlib.core_application.nogui.command.command import CommandInput
 from rantlib.core_application.nogui.config import TerminalConfig
 from rantlib.core_application.storage import STD_PATH_CLI_CONFIG
 from rantlib.core_application.event.command import *
-
-from rantlib.core_application.nogui.util import *
+from rantlib.core_application.nogui.prompt import Prompt
 
 
 def generic_error_thrower(message):
@@ -31,6 +30,8 @@ class TerminalClient(Client):
         self.aliases = {}
         self.config = TerminalConfig()
         self.config.read_data_file(STD_PATH_CLI_CONFIG)
+        self.prompt = Prompt(self, src=self.config.get("prompt"))
+        self.command_count = 0
         self.import_commands()
 
     def do_login_flow(self):
@@ -53,15 +54,6 @@ class TerminalClient(Client):
                         print(self.qtpy.language.get("cli_login_cancel_instructions"))
             else:
                 print(self.qtpy.language.get("cli_continuing_as_guest"))
-
-    def get_prompt(self):
-        # Do some simple string replacements on prompt
-        prompt = self.config.get("prompt")
-        user = self.qtpy.language.get("guest")
-        if not self.qtpy.is_guest_mode():
-            user = self.qtpy.auth_service.current_user().username
-        prompt = prompt.replace("\\u", user)
-        return prompt
 
     def register_command(self, name, executor, alias=None, overwrite=False):
         command_register_event = CommandRegisterEvent(name, executor, alias, overwrite)
@@ -97,7 +89,9 @@ class TerminalClient(Client):
     def run(self):
         self.do_login_flow()
         while True:
-            raw_command_text = input(self.get_prompt())
+            self.command_count += 1
+            self.prompt.print()
+            raw_command_text = input()
             self.execute_text(raw_command_text)
 
     def reload_command(self, command_text):

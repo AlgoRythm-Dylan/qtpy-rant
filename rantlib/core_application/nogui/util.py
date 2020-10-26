@@ -79,118 +79,16 @@ def reset():
     else:
         nix_color_code("00")
 
-def red_fg():
-    global windows_current_fg
+def console_color(color, bg=False):
+    global windows_current_fg, windows_current_bg
     if windows_mode:
-        windows_current_fg = windows_fg["red"]
+        if bg == False:
+            windows_current_fg = windows_fg[color]
+        else:
+            windows_current_bg = windows_bg[color]
         do_windows_attrs()
     else:
-        nix_color_code(nix_colors["red"])
-
-def red_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["red"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["red"], bg=True)
-
-def green_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["green"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["green"])
-
-def green_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["green"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["green"], bg=True)
-
-def blue_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["blue"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["blue"])
-
-def blue_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["blue"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["blue"], bg=True)
-
-def cyan_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["cyan"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["cyan"])
-
-def cyan_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["cyan"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["cyan"], bg=True)
-
-def yellow_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["yellow"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["yellow"])
-
-def yellow_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["yellow"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["yellow"], bg=True)
-
-def magenta_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["magenta"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["magenta"])
-
-def magenta_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["magenta"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["magenta"], bg=True)
-
-def white_fg():
-    global windows_current_fg
-    if windows_mode:
-        windows_current_fg = windows_fg["white"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["white"])
-
-def white_bg():
-    global windows_current_bg
-    if windows_mode:
-        windows_current_bg = windows_bg["white"]
-        do_windows_attrs()
-    else:
-        nix_color_code(nix_colors["white"], bg=True)
-
+        nix_color_code(nix_colors[color])
 
 def two_column(text1, text2, width):
     space_between = width - (len(text1) + len(text2))

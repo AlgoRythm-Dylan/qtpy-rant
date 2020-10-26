@@ -31,6 +31,7 @@ class QtPyApp(EventEmitter):
         self.config.read_data_file(STD_PATH_APP_CONFIG)
         self.language = load_language(self.config.get("language"))
         self.auth_service = AuthService()
+        self.auth_service.read_data_file()
         self.temp_data = {}
 
     def is_guest_mode(self):

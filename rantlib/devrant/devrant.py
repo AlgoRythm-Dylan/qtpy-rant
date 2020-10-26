@@ -11,6 +11,16 @@ import requests
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 
+APP_VERSION = "3"
+BASE_URL  = "https://devrant.com/api"
+USER_ID_URL = BASE_URL + "/get-user-id"
+USERS_URL = BASE_URL + "/users"
+LOGIN_URL = USERS_URL + "/auth-token"
+DEVRANT_URL = BASE_URL + "/devrant"
+RANTS_URL = DEVRANT_URL + "/rants"
+RANDOM_RANT_URL = RANTS_URL + "/surprise"
+COLLABS_URL = DEVRANT_URL + "/collabs"
+
 class Image:
 
     def __init__(self):
@@ -42,15 +52,16 @@ class Auth:
         self.username = None
 
     def data(self, data):
-        auth = data["auth_token"]
+        auth = data.get("auth_token", data)
         self.id = auth["id"]
         self.key = auth["key"]
         self.expire_time = auth["expire_time"]
         self.user_id = auth["user_id"]
+        self.username = auth.get("username", None)
 
     def update_username(self):
         user = User()
-        user.id = self.id
+        user.id = self.user_id
         user.load()
         self.username = user.username
 
@@ -180,16 +191,6 @@ class Comment:
         self.user.user_avatar = ProfileImage()
         self.user.user_avatar.data(data["user_avatar"])
 
-APP_VERSION = "3"
-BASE_URL  = "https://devrant.com/api"
-USER_ID_URL = BASE_URL + "/get-user-id"
-USERS_URL = BASE_URL + "/users"
-LOGIN_URL = USERS_URL + "/auth-token"
-DEVRANT_URL = BASE_URL + "/devrant"
-RANTS_URL = DEVRANT_URL + "/rants"
-RANDOM_RANT_URL = RANTS_URL + "/surprise"
-COLLABS_URL = DEVRANT_URL + "/collabs"
-
 def username_to_user_id(username):
     url = f"{USER_ID_URL}?app={APP_VERSION}&username={username}"
     request = requests.get(url)
@@ -215,9 +216,8 @@ def get_user(user_id, raw_data=False):
         raise Exception(data.get("error"))
 
 def login(username, password):
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = {"app": APP_VERSION, "username": username, "password": password}
-    req = requests.post(LOGIN_URL, data=data, headers=headers)
+    req = requests.post(LOGIN_URL, data=data)
     data = req.json()
     status_code = req.status_code
     if status_code != HTTP_OK:

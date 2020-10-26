@@ -59,7 +59,7 @@ class TerminalClient(Client):
         prompt = self.config.get("prompt")
         user = self.qtpy.language.get("guest")
         if not self.qtpy.is_guest_mode():
-            self.qtpy.auth_service.current_user().username
+            user = self.qtpy.auth_service.current_user().username
         prompt = prompt.replace("\\u", user)
         return prompt
 

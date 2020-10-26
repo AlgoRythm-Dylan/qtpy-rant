@@ -42,11 +42,12 @@ def read_data_file(path, default=None, print_error=False):
             print(e, file=sys.stderr)
     return data
 
+# json.dumps is really dumb and ONLY works with primitive types
+def complex_encoder(obj):
+    return obj.__dict__
+
 def write_data_file(path, data):
     file = open(path, "w+")
-    try:
-        file.write(json.dumps(data))
-    except:
-        file.write(json.dumps(data.__dict__)) # I dunno, maybe it is an object
+    file.write(json.dumps(data, default=complex_encoder))
     file.close()
     

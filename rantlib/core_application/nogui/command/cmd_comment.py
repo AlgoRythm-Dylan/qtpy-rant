@@ -4,6 +4,7 @@ from rantlib.core_application.nogui.command.command import Command
 class CommentCommand(Command):
 
     def __init__(self, client):
+        super().__init__()
         self.description = "Read and write comments"
         self.usage = "comment"
         self.client = client

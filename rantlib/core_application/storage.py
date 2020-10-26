@@ -8,16 +8,16 @@ from rantlib.core_application.ui.window.window_state import WindowState
 def get_data_dir_path():
     return join(expanduser("~"), ".qtpy-rant")
 
-STD_PATH_AUTH = join(get_data_dir_path(), "auth.json")
-STD_PATH_APP_CONFIG = join(get_data_dir_path(), "app-config.json")
-STD_PATH_CLI_CONFIG = join(get_data_dir_path(), "cli-config.json")
-STD_PATH_GUI_CONFIG = join(get_data_dir_path(), "gui-config.json")
-STD_PATH_WINDOW_STATE = join(get_data_dir_path(), "window_state/")
-
 def get_dir(path=get_data_dir_path()):
     if not os.path.isdir(path):
         os.makedirs(path)
     return path
+
+STD_PATH_AUTH = join(get_dir(), "auth.json")
+STD_PATH_APP_CONFIG = join(get_data_dir_path(), "app-config.json")
+STD_PATH_CLI_CONFIG = join(get_data_dir_path(), "cli-config.json")
+STD_PATH_GUI_CONFIG = join(get_data_dir_path(), "gui-config.json")
+STD_PATH_WINDOW_STATE = join(get_data_dir_path(), "window_state/")
 
 def read_window_state(class_name):
     state_data = read_data_file(join(get_dir(STD_PATH_WINDOW_STATE), f"{class_name}.json"))

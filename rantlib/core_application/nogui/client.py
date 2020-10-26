@@ -88,9 +88,12 @@ class TerminalClient(Client):
 
     def run(self):
         self.do_login_flow()
+        last_prompt = ""
         while True:
             self.command_count += 1
-            self.prompt.compile(self.config.get("prompt"))
+            if self.config.get("prompt") != last_prompt:
+                last_prompt = self.config.get("prompt")
+                self.prompt.compile(last_prompt)
             self.prompt.print()
             raw_command_text = input()
             self.execute_text(raw_command_text)

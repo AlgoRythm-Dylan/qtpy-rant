@@ -8,8 +8,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
 VERSION = "0.1.0"
 
-from rantlib.core_application.nogui.client import TerminalClient
-from rantlib.core_application.ui.client import QtClient
 from rantlib.core_application.event.event import EventEmitter
 from rantlib.core_application.auth import AuthService
 from rantlib.core_application.config import QtPyRantConfig
@@ -45,9 +43,11 @@ class QtPyApp(EventEmitter):
         
 
 def start_gui(qtpy):
+    from rantlib.core_application.ui.client import QtClient
     qtpy.client = QtClient(qtpy)
 
 def start_cli(qtpy):
+    from rantlib.core_application.nogui.client import TerminalClient
     qtpy.client = TerminalClient(qtpy)
 
 def start_app(qtpy):

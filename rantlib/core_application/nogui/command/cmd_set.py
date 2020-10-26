@@ -42,7 +42,7 @@ class SetCommand(Command):
         print("You can call the command with one argument to get the value of that key")
         print("You can call the command with the --remove option to remove a key")
         print("\tNote: keys with defaults will repopulate after restart")
-        print("To restore a key to its default (if it has one), use the --default option")
+        print("To restore a key to its default (if it has one), use the --restore option")
 
 # Braindead simple bullshit
 def parse_type(arg):

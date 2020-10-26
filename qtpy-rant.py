@@ -15,7 +15,11 @@ from rantlib.core_application.auth import AuthService
 from rantlib.core_application.config import QtPyRantConfig
 from rantlib.core_application.lang import load_language
 from rantlib.core_application.storage import STD_PATH_APP_CONFIG
+from rantlib.devrant.devrant import login
 
+# Main application class. Has the respobsibility of
+# keeping application data and providing some
+# simple application-wide functionality
 class QtPyApp(EventEmitter):
 
     def __init__(self):
@@ -23,14 +27,21 @@ class QtPyApp(EventEmitter):
         self.gui_mode = True
         self.args = None
         self.client = None
-        self.current_user = None
         self.config = QtPyRantConfig()
         self.config.read_data_file(STD_PATH_APP_CONFIG)
         self.language = load_language(self.config.get("language"))
         self.auth_service = AuthService()
+        self.temp_data = {}
 
     def is_guest_mode(self):
-        return self.current_user == None
+        return self.auth_service.current_user() == None
+
+    # Tries to authenticate with devRant
+    # if auth is successful ,sets user as current
+    def login(self, username, password):
+        auth = login(username, password)
+        self.auth_service.add_user(auth, set_current=True)
+        
 
 def start_gui(qtpy):
     qtpy.client = QtClient(qtpy)

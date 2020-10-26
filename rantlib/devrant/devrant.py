@@ -39,11 +39,20 @@ class Auth:
         self.id = None
         self.key = None
         self.expire_time = None
+        self.username = None
 
     def data(self, data):
-        self.id = data["id"]
-        self.id = data["key"]
-        self.id = data["expire_time"]
+        auth = data["auth_token"]
+        self.id = auth["id"]
+        self.key = auth["key"]
+        self.expire_time = auth["expire_time"]
+        self.user_id = auth["user_id"]
+
+    def update_username(self):
+        user = User()
+        user.id = self.id
+        user.load()
+        self.username = user.username
 
 # Data object for a user
 class User:
@@ -173,8 +182,8 @@ def get_user(user_id, raw_data=False):
     url = f"{USERS_URL}/{user_id}?app={APP_VERSION}&content=all"
     user = User()
     request = requests.get(url)
+    data = request.json()
     if request.status_code == HTTP_OK:
-        data = request.json()
         if raw_data:
             return data
         else:
@@ -185,20 +194,14 @@ def get_user(user_id, raw_data=False):
         raise Exception(data.get("error"))
 
 def login(username, password):
-    req = requests.post(LOGIN_URL, data={"username": username, "password": password, "app": APP_VERSION})
+    req = requests.post(f"{LOGIN_URL}?app={APP_VERSION}&username={username}&password={password}")
     status_code = req.status_code
+    print(req.request.url)
     data = req.json()
     if status_code != HTTP_OK:
         raise Exception(data.get("error"))
     else:
-        user = User()
-        user.id = data.get("user_id")
-        user.auth = Auth()
-        user.auth.data(data)
-        return user
-
-
-if __name__ == "__main__":
-    user = User()
-    user.username = "AlgoRythm"
-    user.load()
+        auth = Auth()
+        auth.data(data)
+        auth.update_username()
+        return auth

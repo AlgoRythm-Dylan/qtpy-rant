@@ -40,16 +40,27 @@ class TerminalClient(Client):
             if answer == self.qtpy.language.get('cli_confirm_positive').upper():
                 print(self.qtpy.language.get("warning"))
                 print(self.qtpy.language.get("third_party_warning"))
-                username = input(f"{self.qtpy.language.get('username')}: ")
-                password = getpass(f"{self.qtpy.language.get('password')}: ")
-                print(username, password)
+                while(self.qtpy.auth_service.current_user() == None):
+                    username = input(f"{self.qtpy.language.get('username')}: ")
+                    password = getpass(f"{self.qtpy.language.get('password')}: ")
+                    if username == "":
+                        return
+                    try:
+                        self.qtpy.login(username, password)
+                    except Exception as e:
+                        print(self.qtpy.language.get("login_failure"))
+                        print(e)
+                        print(self.qtpy.language.get("cli_login_cancel_instructions"))
             else:
                 print(self.qtpy.language.get("cli_continuing_as_guest"))
 
     def get_prompt(self):
         # Do some simple string replacements on prompt
         prompt = self.config.get("prompt")
-        prompt = prompt.replace("\\u", self.qtpy.language.get("guest") if self.qtpy.is_guest_mode() else self.qtpy.current_user.username)
+        user = self.qtpy.language.get("guest")
+        if not self.qtpy.is_guest_mode():
+            self.qtpy.auth_service.current_user().username
+        prompt = prompt.replace("\\u", user)
         return prompt
 
     def register_command(self, name, executor, alias=None, overwrite=False):
@@ -84,9 +95,6 @@ class TerminalClient(Client):
             break
 
     def run(self):
-        """box = Box(self.config.get("preferred_width"))
-        box.add_section("\ndude")
-        print(box.render())"""
         self.do_login_flow()
         while True:
             raw_command_text = input(self.get_prompt())

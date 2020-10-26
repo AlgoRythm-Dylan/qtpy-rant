@@ -8,6 +8,7 @@
     "login": "Login",
     "guest": "Guest",
     "username": "Username",
+    "email": "Email",
     "password": "Password",
     "comments": "Comments",
     "user": "User",
@@ -15,6 +16,7 @@
     "score": "Score",
     "rant_id": "Rant ID",
     "image": "Image",
+    "login_failure": "Login failed. Check your username and password and try again.",
 
     "app_short_desc": "The hackable, plugin-able, Qt-based, Python-powered devRant client",
 
@@ -22,6 +24,7 @@
     "app_arg_theme_tool_help": "Open the theme tool for creating and editing themes",
 
     "cli_no_users_logged_in": "No users logged in. Log in now?",
+    "cli_login_cancel_instructions": "Enter a blank email to cancel",
     "cli_confirm_positive": "Y",
     "cli_confirm_negative": "N",
     "cli_continuing_as_guest": "Continuing in guest mode",

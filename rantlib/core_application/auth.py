@@ -15,11 +15,7 @@ class AuthService:
         if self.current_session_key == None:
             return None
         for user in users:
-<<<<<<< HEAD
-            if auth.key == self.current_session_key:
-=======
             if user.key == self.current_session_key:
->>>>>>> 72ba524da1d23081747ae9c80d845840e9714d8b
                 return user
         return None
 
@@ -29,11 +25,7 @@ class AuthService:
             self.set_current_user(user)
 
     def set_current_user(self, user):
-<<<<<<< HEAD
-        self.current_session_key = auth.key
-=======
         self.current_session_key = user.key
->>>>>>> 72ba524da1d23081747ae9c80d845840e9714d8b
 
     def write_data_file(self):
         write_data_file(STD_PATH_AUTH, self)

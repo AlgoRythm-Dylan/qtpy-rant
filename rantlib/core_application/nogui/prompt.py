@@ -1,4 +1,7 @@
 from datetime import datetime
+import sys
+
+from rantlib.core_application.nogui.util import *
 
 TOKEN_TYPE_STR = "str"
 TOKEN_TYPE_INSTRUCTION = "instr"
@@ -69,6 +72,7 @@ class Prompt:
             i += 1
 
     def print(self):
+        do_windows_attrs()
         if not self.is_compiled():
             self.compile()
         now = datetime.now()
@@ -130,3 +134,34 @@ class Prompt:
                     print(now.strftime("%m"), end="")
                 elif token.text == "[timezone]":
                     print(now.strftime("%Z"), end="")
+                elif token.text == "[reset]":
+                    reset()
+                elif token.text == "[red_fg]":
+                    red_fg()
+                elif token.text == "[red_bg]":
+                    red_bg()
+                elif token.text == "[green_fg]":
+                    green_fg()
+                elif token.text == "[green_bg]":
+                    green_bg()
+                elif token.text == "[blue_fg]":
+                    blue_fg()
+                elif token.text == "[blue_bg]":
+                    blue_bg()
+                elif token.text == "[cyan_fg]":
+                    cyan_fg()
+                elif token.text == "[cyan_bg]":
+                    cyan_bg()
+                elif token.text == "[yellow_fg]":
+                    yellow_fg()
+                elif token.text == "[yellow_bg]":
+                    yellow_bg()
+                elif token.text == "[magenta_fg]":
+                    magenta_fg()
+                elif token.text == "[magenta_bg]":
+                    magenta_bg()
+                elif token.text == "[white_fg]":
+                    white_fg()
+                elif token.text == "[white_bg]":
+                    white_bg()
+            sys.stdout.flush() # Flush so that attributes display

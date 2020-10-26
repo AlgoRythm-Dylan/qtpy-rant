@@ -9,21 +9,22 @@ try:
 except (AttributeError, ImportError):
     windows_mode = False # Just to be sure, I guess...
 
-windows_GetStdHandle = windll.kernel32.GetStdHandle
-windows_GetStdHandle.argtypes = [
-    wintypes.DWORD
-]
-windows_GetStdHandle.restype = wintypes.HANDLE
+if windows_mode:
+    windows_GetStdHandle = windll.kernel32.GetStdHandle
+    windows_GetStdHandle.argtypes = [
+        wintypes.DWORD
+    ]
+    windows_GetStdHandle.restype = wintypes.HANDLE
 
-def windows_stdout():
-    return windows_GetStdHandle(stdout)
+    def windows_stdout():
+        return windows_GetStdHandle(stdout)
 
-windows_SetConsoleTextAttribute = windll.kernel32.SetConsoleTextAttribute
-windows_SetConsoleTextAttribute.argtypes = [
-    wintypes.HANDLE,
-    wintypes.WORD
-]
-windows_SetConsoleTextAttribute.restype = wintypes.BOOL
+    windows_SetConsoleTextAttribute = windll.kernel32.SetConsoleTextAttribute
+    windows_SetConsoleTextAttribute.argtypes = [
+        wintypes.HANDLE,
+        wintypes.WORD
+    ]
+    windows_SetConsoleTextAttribute.restype = wintypes.BOOL
 
 windows_fg = {
     "black": 0x0000,

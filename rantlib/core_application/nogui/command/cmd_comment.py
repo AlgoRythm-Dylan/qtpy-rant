@@ -1,6 +1,7 @@
 from rantlib.core_application.nogui.util import *
+from rantlib.core_application.nogui.command.command import Command
 
-class CommentCommand:
+class CommentCommand(Command):
 
     def __init__(self, client):
         self.description = "Read and write comments"

@@ -24,7 +24,7 @@
     "app_arg_theme_tool_help": "Open the theme tool for creating and editing themes",
 
     "cli_no_users_logged_in": "No users logged in. Log in now?",
-    "cli_login_cancel_instructions": "Enter a blank email to cancel",
+    "cli_login_cancel_instructions": "Enter a blank username to cancel",
     "cli_confirm_positive": "Y",
     "cli_confirm_negative": "N",
     "cli_continuing_as_guest": "Continuing in guest mode",

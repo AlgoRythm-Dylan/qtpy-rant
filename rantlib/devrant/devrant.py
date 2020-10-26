@@ -215,10 +215,11 @@ def get_user(user_id, raw_data=False):
         raise Exception(data.get("error"))
 
 def login(username, password):
-    req = requests.post(f"{LOGIN_URL}?app={APP_VERSION}&username={username}&password={password}")
-    status_code = req.status_code
-    print(req.request.url)
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    data = {"app": APP_VERSION, "username": username, "password": password}
+    req = requests.post(LOGIN_URL, data=data, headers=headers)
     data = req.json()
+    status_code = req.status_code
     if status_code != HTTP_OK:
         raise Exception(data.get("error"))
     else:

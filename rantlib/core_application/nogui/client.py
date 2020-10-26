@@ -42,9 +42,9 @@ class TerminalClient(Client):
                 print(self.qtpy.language.get("third_party_warning"))
                 while(self.qtpy.auth_service.current_user() == None):
                     username = input(f"{self.qtpy.language.get('username')}: ")
-                    password = getpass(f"{self.qtpy.language.get('password')}: ")
                     if username == "":
                         return
+                    password = getpass(f"{self.qtpy.language.get('password')}: ")
                     try:
                         self.qtpy.login(username, password)
                     except Exception as e:

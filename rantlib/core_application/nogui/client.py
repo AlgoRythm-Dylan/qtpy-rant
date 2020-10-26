@@ -7,7 +7,7 @@
 import sys
 from os import walk
 from pathlib import Path
-from importlib import import_module, reload
+from importlib import import_module
 from getpass import getpass
 
 from rantlib.core_application.client import Client

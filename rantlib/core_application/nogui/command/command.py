@@ -4,6 +4,7 @@ class Command:
         self.description = "A default command description :("
         self.usage = "<command>"
         self.parser = None
+        self.is_prompt_command = False
 
     def shutdown(self):
         pass
@@ -13,6 +14,9 @@ class Command:
 
     def execute(self, args):
         print("You ran a default command!")
+
+    def execute_prompt(self):
+        pass
 
 class CommandInput:
 

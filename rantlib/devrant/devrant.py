@@ -121,7 +121,31 @@ class User:
             self.id = username_to_user_id(self.username)
         self.data(get_user(self.id, raw_data=True))
 
+# Data object for a comment
+class Comment:
 
+    def __init__(self):
+        self.id = None
+        self.rant_id = None
+        self.body = None
+        self.score = None
+        self.created_time = None
+        self.vote_state = None
+        self.user = None
+
+    def data(self, data):
+        self.id = data["id"]
+        self.rant_id = data["rant_id"]
+        self.body = data["body"]
+        self.score = data["score"]
+        self.created_time = data["created_time"]
+        self.vote_state = data["vote_state"]
+        self.user = User()
+        self.user.id = data["user_id"]
+        self.user.username = data["user_username"]
+        self.user.score = data["user_score"]
+        self.user.user_avatar = ProfileImage()
+        self.user.user_avatar.data(data["user_avatar"])
 
 # Data object for a rant
 class Rant:
@@ -150,6 +174,10 @@ class Rant:
             self.attached_image = Image()
             self.attached_image.data(data["attached_image"])
         self.num_comments = data["num_comments"]
+        for comment_data in data.get("comments", []):
+            comment = Comment()
+            comment.data(comment_data)
+            self.comments.append(comment)
         self.tags = data["tags"]
         self.vote_state = data["vote_state"]
         self.user = User()
@@ -165,31 +193,8 @@ class Rant:
     def has_image(self):
         return self.attached_image != None
 
-# Data object for a comment
-class Comment:
-
-    def __init__(self):
-        self.id = None
-        self.rant_id = None
-        self.body = None
-        self.score = None
-        self.created_time = None
-        self.vote_state = None
-        self.user = None
-
-    def data(self, data):
-        self.id = data["id"]
-        self.rant_id = data["rant_id"]
-        self.body = data["body"]
-        self.score = data["score"]
-        self.created_time = data["created_time"]
-        self.vote_state = data["vote_state"]
-        self.user = User()
-        self.user.id = data["user_id"]
-        self.user.username = data["user_username"]
-        self.user.score = data["user_score"]
-        self.user.user_avatar = ProfileImage()
-        self.user.user_avatar.data(data["user_avatar"])
+    def load(self):
+        pass
 
 def username_to_user_id(username):
     url = f"{USER_ID_URL}?app={APP_VERSION}&username={username}"
@@ -214,6 +219,9 @@ def get_user(user_id, raw_data=False):
             return user
     else:
         raise Exception(data.get("error"))
+
+def get_full_rant(id):
+    pass
 
 def login(username, password):
     data = {"app": APP_VERSION, "username": username, "password": password}

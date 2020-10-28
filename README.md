@@ -14,6 +14,7 @@ Features:
 - Language support
 - Installable command system
 - Highly configurable
+- Cross-platform terminal coloring (ASCII)
 
 Planned:
 - Fully-featured GUI and CLI clients
@@ -29,7 +30,6 @@ Maybe:
 - Rant archiver
 - Outstanding documentation
 - Important notifications†2
-- Cross-platform terminal coloring (ASCII)
 
 Probably not:
 - Personal stats

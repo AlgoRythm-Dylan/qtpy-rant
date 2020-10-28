@@ -18,7 +18,11 @@ class CommentCommand(Command):
         except:
             print("No rant selected")
             return
-        comments = rant.get("comments", [])
+        comments = rant.comments
+        print(comments)
+        if len(comments) == 0:
+            print("This rant does not have comments")
+            return
         box = Box()
         box.add_section(comment.text)
         

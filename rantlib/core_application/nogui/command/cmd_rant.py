@@ -18,10 +18,22 @@ class RantCommand(Command):
     def execute(self, args):
         self.display_rant()
 
-    def display_rant(self):
+    def check_rant_buffer(self):
         if len(self.rant_buffer) == 0:
             print("Loading rants...")
+            if not self.client.qtpy.is_guest_mode():
+                token = self.client.qtpy.auth_service.current_user()
+                self.rant_getter.token_id = token.id
+                self.rant_getter.token_key = token.key
+                self.rant_getter.user_id = token.user_id
+            else:
+                self.rant_getter.token_id = None
+                self.rant_getter.token_key = None
+                self.rant_getter.user_id = None
             self.rant_buffer = self.rant_getter.get()
+
+    def display_rant(self):
+        self.check_rant_buffer()
         rant = self.rant_buffer.pop()
         self.client.temp_data["rant"] = rant
         self.client.temp_data["comment_index"] = 0

@@ -13,7 +13,10 @@ class Command:
         print(f"Usage: {self.usage}\nPrompt gadget: {self.is_prompt_command}")
 
     def execute(self, args):
-        print("You ran a default command!")
+        if self.is_prompt_command:
+            print("This command is only used in your prompt")
+        else:
+            print("You ran a default command!")
 
     def execute_prompt(self):
         pass

@@ -48,6 +48,10 @@ class SetCommand(Command):
 def parse_type(arg):
     if arg == "None":
         return None
+    elif arg.lower() == "true":
+        return True
+    elif arg.lower() == "false":
+        return False
     try:
         int(arg)
         if arg.find(".") != -1:

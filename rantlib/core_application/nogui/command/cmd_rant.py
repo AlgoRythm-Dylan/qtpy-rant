@@ -20,6 +20,7 @@ class RantCommand(Command):
 
     def display_rant(self):
         if len(self.rant_buffer) == 0:
+            print("Loading rants...")
             self.rant_buffer = self.rant_getter.get()
         rant = self.rant_buffer.pop()
         self.client.temp_data["rant"] = rant

@@ -120,6 +120,7 @@ Base class member variables:
 * `description` - `<str>`: A short description of your command
 * `parser` - `<ArgParser|None>`: Commands support `argparse.ArgParser`s
 * `usage` - `<str>`: Usage guidance string
+* `is_prompt_command`: Enables prompt gadgets (See below)
 
 Base class methods:
 
@@ -197,7 +198,49 @@ The raw text is all of the text of the arguments (The command is removed):
 `args` depends on whether you have set your `parser` member variable.
 [Read more](#parser) about the args object's potential values
 
+## execute_prompt
+Function with no arguments. Executed by prompt system if your command
+was used in a prompt and you have set `is_prompt_command` to `True`.
+
 ## shutdown
 A function called when your command is shut down by the system (for
 example, if your command was reloaded). Allows you to gracefully
-exit.s
+exit.
+
+
+# Creating a prompt gadget
+Commands can also be used as prompt gadgets. If you would like
+your command to do some minor task in the prompt, you can enable
+`is_prompt_command` and implement `execute_prompt`. It is
+important that you always use `end=""`, because otherwise,
+the prompt will be split up across multiple lines, which is
+almost always not desired behavior.
+
+Prompt gadget failures are silent. If an error occurs, your
+gadget will simply be missing from the prompt.
+
+```python
+class HelloWorldCommand(Command):
+
+    def __init__(self):
+        super().__init__()
+        self.is_prompt_command = True
+
+    def execute_prompt(self):
+        print("Hello world", end="")
+
+def register(client):
+    client.register_command("helloworld", HelloWorldCommand())
+```
+
+Add it to your prompt
+
+```
+set prompt [helloworld] >> 
+```
+
+And then you should immediately see:
+
+```
+Hello world >> |
+```

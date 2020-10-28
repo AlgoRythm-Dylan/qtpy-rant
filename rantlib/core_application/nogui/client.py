@@ -33,6 +33,7 @@ class TerminalClient(Client):
         self.prompt = Prompt(self, src=self.config.get("prompt"))
         self.command_count = 0
         self.import_commands()
+        self.history = []
 
     def do_login_flow(self):
         if len(self.qtpy.auth_service.users) == 0:
@@ -75,8 +76,24 @@ class TerminalClient(Client):
         if executor.parser:
             executor.parser.error = generic_error_thrower
 
+        if type(alias) == str:
+            insert = alias not in self.aliases or overwrite
+            if insert:
+                self.aliases[alias] = name
+        elif type(alias) == list: # alias can also be a list
+            for this_alias in alias:
+                insert = this_alias not in self.aliases or overwrite
+                if insert:
+                    self.aliases[this_alias] = name
+
         command_registered_event = CommandRegisteredEvent(name, executor, alias, overwrite)
         self.qtpy.dispatch("command_registered", command_registered_event)
+
+    def get_command_by_name(self, name, search_aliases=True):
+        if name in self.commands.keys():
+            return self.commands[name]
+        elif name in self.aliases.keys():
+            return self.commands[self.aliases[name]]
 
     def import_commands(self):
         commands_path = Path(__file__).parent.joinpath("command")
@@ -96,7 +113,18 @@ class TerminalClient(Client):
                 self.prompt.compile(last_prompt)
             self.prompt.print()
             raw_command_text = input()
-            self.execute_text(raw_command_text)
+            repeat = self.config.get("blank_command_repeats_last")
+            if raw_command_text == "" and len(self.history) > 0 and repeat:
+                last_command = self.history[len(self.history) - 1]
+                print(f"Blank input. Repeating \"{last_command}\"")
+                self.execute_text(last_command)
+            else:
+                if len(self.history) > 0:
+                    if self.history[len(self.history) - 1] != raw_command_text:
+                        self.history.append(raw_command_text)
+                else:
+                    self.history.append(raw_command_text)
+                self.execute_text(raw_command_text)
 
     def reload_command(self, command_text):
         # call shutdown
@@ -139,11 +167,7 @@ class TerminalClient(Client):
             command = raw_command_text[:next_space]
         command_input = CommandInput()
         command_input.raw_text = raw_command_text
-        executor = None
-        if command in self.commands:
-            executor = self.commands[command]
-        elif command in self.aliases:
-            executor = self.aliases[command]
+        executor = self.get_command_by_name(command)
         if executor == None:
             print(f"{self.qtpy.language.get('cli_unknown_command')}: {command}")
         else:

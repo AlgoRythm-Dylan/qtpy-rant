@@ -123,7 +123,8 @@ class Prompt:
                 elif token.text == "[am]":
                     print(now.strftime("%p"))
                 elif token.text == "[user_id]":
-                    print(self.client.qtpy.auth_service.current_user().user_id, end="")
+                    if not self.client.qtpy.is_guest_mode():
+                        print(self.client.qtpy.auth_service.current_user().user_id, end="")
                 elif token.text == "[app_version]":
                     print(self.client.qtpy.version, end="")
                 elif token.text == "[client_version]":
@@ -159,4 +160,13 @@ class Prompt:
                 elif token.text in colors and self.client.config.get("preference_colors_enabled"):
                     color = token.text.replace("[", "").replace("]", "")[:-3]
                     console_color(color, bg=token.text.endswith("_bg]"))
+                else:
+                    # Search custom gadgets
+                    command_name = token.text.replace("[", "").replace("]", "")
+                    command = self.client.get_command_by_name(command_name)
+                    if command != None and command.is_prompt_command:
+                        try:
+                            command.execute_prompt()
+                        except:
+                            pass # Prompt failures are silent
             sys.stdout.flush() # Flush so that attributes display

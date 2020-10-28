@@ -15,9 +15,12 @@ class HelpCommand(Command):
             commands = sorted(self.client.commands.keys())
             for command_name in commands:
                 command = self.client.commands.get(command_name)
-                print(f"- {command_name}:\n\t{command.description}\n\t{self.client.qtpy.language.get('cli_hint_usage')}: {command.usage}")
+                help_text = f"- {command_name}:\n\t{command.description}\n"
+                help_text += f"\t{self.client.qtpy.language.get('cli_hint_usage')}: {command.usage}\n"
+                help_text += f"\tPrompt gadget: {command.is_prompt_command}"
+                print(help_text)
         else:
-            command = self.client.commands.get(args.args[0], None)
+            command = self.client.get_command_by_name(args.args[0])
             if command != None:
                 command.help()
             else:
@@ -29,4 +32,4 @@ class HelpCommand(Command):
         print("You can also pass a command as an argument to get more detailed help, if the command provides it.")
 
 def register(client):
-    client.register_command("help", HelpCommand(client))
+    client.register_command("help", HelpCommand(client), "?")

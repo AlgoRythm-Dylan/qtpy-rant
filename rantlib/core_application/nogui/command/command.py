@@ -10,7 +10,7 @@ class Command:
         pass
 
     def help(self):
-        print(f"Usage: {self.usage}")
+        print(f"Usage: {self.usage}\nPrompt gadget: {self.is_prompt_command}")
 
     def execute(self, args):
         print("You ran a default command!")

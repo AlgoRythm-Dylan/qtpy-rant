@@ -132,6 +132,7 @@ class Comment:
         self.created_time = None
         self.vote_state = None
         self.user = None
+        self.attached_image = None
 
     def data(self, data):
         self.id = data["id"]
@@ -146,6 +147,15 @@ class Comment:
         self.user.score = data["user_score"]
         self.user.user_avatar = ProfileImage()
         self.user.user_avatar.data(data["user_avatar"])
+        if data.get("attached_image") != None:
+            self.attached_image = Image()
+            self.attached_image.data(data.get("attached_image"))
+
+    def has_image(self):
+        return self.attached_image != None
+
+    def to_string(self):
+        return self.body
 
 # Data object for a rant
 class Rant:
@@ -166,35 +176,44 @@ class Rant:
         self.user_dpp = None
 
     def data(self, data):
-        self.id = data["id"]
-        self.text = data["text"]
-        self.score = data["score"]
-        self.created_time = data["created_time"]
-        if data["attached_image"] != "":
+        rant = data
+        if rant.get("id") == None:
+            rant = data["rant"] # For loading from rant detail endpoint
+        self.id = rant["id"]
+        self.text = rant["text"]
+        self.score = rant["score"]
+        self.created_time = rant["created_time"]
+        if rant["attached_image"] != "":
             self.attached_image = Image()
-            self.attached_image.data(data["attached_image"])
-        self.num_comments = data["num_comments"]
+            self.attached_image.data(rant["attached_image"])
+        self.num_comments = rant["num_comments"]
         for comment_data in data.get("comments", []):
             comment = Comment()
             comment.data(comment_data)
             self.comments.append(comment)
-        self.tags = data["tags"]
-        self.vote_state = data["vote_state"]
+        self.tags = rant["tags"]
+        self.vote_state = rant["vote_state"]
         self.user = User()
-        self.user.id = data["user_id"]
-        self.user.username = data["user_username"]
-        self.user.score = data["user_score"]
+        self.user.id = rant["user_id"]
+        self.user.username = rant["user_username"]
+        self.user.score = rant["user_score"]
         self.user_avatar = ProfileImage()
-        self.user_avatar.data(data["user_avatar"])
+        self.user_avatar.data(rant["user_avatar"])
         self.user_avatar_lg = ProfileImage()
-        self.user_avatar_lg.data(data["user_avatar_lg"])
-        self.user_dpp = data.get("user_dpp", False)
+        self.user_avatar_lg.data(rant["user_avatar_lg"])
+        self.user_dpp = rant.get("user_dpp", False)
 
     def has_image(self):
         return self.attached_image != None
 
+    def comments_loaded(self):
+        return len(self.comments) == self.num_comments
+
     def load(self):
-        pass
+        self.data(get_full_rant(self.id, raw_data=True))
+
+    def to_string(self):
+        return self.text
 
 def username_to_user_id(username):
     url = f"{USER_ID_URL}?app={APP_VERSION}&username={username}"
@@ -220,8 +239,18 @@ def get_user(user_id, raw_data=False):
     else:
         raise Exception(data.get("error"))
 
-def get_full_rant(id):
-    pass
+def get_full_rant(id, raw_data=False):
+    url = f"{RANTS_URL}/{id}?app={APP_VERSION}"
+    req = requests.get(url)
+    data = req.json()
+    if data.get("success") != True:
+        raise Exception(data.get("error"))
+    if raw_data:
+        return data
+    else:
+        rant = Rant()
+        rant.data(data)
+        return rant
 
 def login(username, password):
     data = {"app": APP_VERSION, "username": username, "password": password}

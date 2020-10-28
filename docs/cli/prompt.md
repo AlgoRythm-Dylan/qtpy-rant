@@ -125,4 +125,4 @@ Prompt gadget: False
 
 This makes the number of prompt gadgets beyond the built-in
 ones infinite. You can even create your own gadget! See the
-[documentation](/cli/command.md) on writing your own command to do so.
+[documentation](command) on writing your own command to do so.

@@ -1,6 +1,6 @@
 from rantlib.core_application.ui.window.window import Window
 from rantlib.core_application.ui.theme import *
-from rantlib.core_application.ui.thread.load_themes import LoadThemesWorker
+from rantlib.core_application.ui.thread.themes import LoadThemesWorker
 from rantlib.core_application.ui.parts.pg_theme_sample import ThemeSamplePage
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QScrollArea
 from PyQt5.QtCore import Qt, QThreadPool

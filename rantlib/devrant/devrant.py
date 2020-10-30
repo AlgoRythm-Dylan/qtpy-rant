@@ -264,3 +264,23 @@ def login(username, password):
         auth.data(data)
         auth.update_username()
         return auth
+
+def get_rants(mode="algo", time_range="day", limit=50, skip=0, token_id=None, token_key=None, user_id=None, raw_data=False):
+    url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={time_range}&limit={amount}&skip={skip}"
+    if token_id != None:
+        url += f"&token_id={token_id}&token_key={token_key}&user_id={user_id}"
+    request = requests.get(url)
+    data = request.json()
+    success = data.get("success", False)
+    if not success:
+        raise Exception(data.get("error"))
+    if raw_data:
+        return data
+    rants_data = data.get("rants")
+    rants = []
+    for rant_data in rants_data:
+        rant = Rant()
+        rant.data(rant_data)
+        rants.append(rant)
+    return rants
+    

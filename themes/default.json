@@ -7,6 +7,10 @@
     "background": "#ffffff",
     "foreground": "#2f2f32",
     "foreground_alt": "#aaaab8",
+    "foreground_error": "#d55161",
+
+    "error_panel_foreground": "#aaaab8",
+    "error_panel_background": "#d55161",
 
     "accent_background": "#d55161",
     "accent_foreground": "#ffffff",

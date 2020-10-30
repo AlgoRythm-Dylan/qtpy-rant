@@ -7,6 +7,23 @@ Qt for GUI, this client is easy to develop and/or hack while still
 maintaining the power of a full desktop programming language (one that
 wasn't originally designed for the web!)
 
+## Run it
+Interested in previewing? Right now, the application is in pre-alpha. Don't
+let that stop you, though. Install just three items and you're ready to go
+
+```bash
+git clone https://github.com/AlgoRythm-Dylan/qtpy-rant
+# Install python3 and pip3 with your package manager
+pip3 install requests
+pip3 install PyQt5
+# Once you're all installed, cd into the folder and run
+cd qtpy-rant
+# If you want the graphical version, run this:
+python3 qtpy-rant.py
+# Otherwise, add the --nogui switch for command-line mode
+python3 qtpy-rant.py --nogui
+```
+
 Features:
 - GUI and CLI clients
 - Custom theme system

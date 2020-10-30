@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
 from rantlib.core_application.client import Client
-from rantlib.core_application.ui.window.mainwindow import MainWindow
+from rantlib.core_application.ui.window.main_window import MainWindow
+from rantlib.core_application.ui.window.login_window import LoginWindow
 from rantlib.core_application.ui.window.theme_tool import ThemeTool
 from rantlib.core_application.ui.theme import load_theme
 from rantlib.core_application.storage import read_data_file, STD_PATH_GUI_CONFIG
@@ -37,8 +38,13 @@ class QtClient(Client):
             self.windows.append(main_window)
             self.main_window = main_window
         else:
-            main_window = MainWindow(self.qtpy)
-            self.windows.append(main_window)
-            self.main_window = main_window
+            if len(self.qtpy.auth_service.users) == 0:
+                login_window = LoginWindow(self.qtpy)
+                self.windows.append(login_window)
+                self.main_window = login_window
+            else:
+                main_window = MainWindow(self.qtpy)
+                self.windows.append(main_window)
+                self.main_window = main_window
         self.main_window.show()
         self.qapplication.exec_()

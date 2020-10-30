@@ -19,6 +19,9 @@ class Theme:
         self.background = None
         self.foreground = None
         self.foreground_alt = None
+        self.foreground_error = None
+        self.error_panel_foreground = None
+        self.error_panel_background = None
         self.accent_background = None
         self.accent_foreground = None
         self.secondary_background = None
@@ -45,6 +48,9 @@ class Theme:
         self.background = data.get("background", "#ffffff")
         self.foreground = data.get("foreground", "#2f2f32")
         self.foreground_alt = data.get("foreground_alt", "#aaaab8")
+        self.foreground_error = data.get("foreground_error", "#d55161")
+        self.error_panel_foreground = data.get("error_panel_foreground", "#aaaab8")
+        self.error_panel_background = data.get("error_panel_background", "#d55161")
         self.accent_background = data.get("accent_background", "#d55161")
         self.accent_foreground = data.get("accent_foreground", "#ffffff")
         self.secondary_background = data.get("secondary_background", "#40415a")
@@ -77,12 +83,32 @@ def apply_theme_to_widget(client, element, theme):
             "font-size": "20px",
             "font-family": "Roboto"
         }))
+    elif name == "devrant_label":
+        element.setStyleSheet(qss({
+            "color": theme.foreground,
+            "font-size": "20px",
+            "font-family": "Roboto"
+        }))
+    elif name == "devrant_error_label":
+        element.setStyleSheet(qss({
+            "color": theme.foreground_error,
+            "font-size": "20px",
+            "font-family": "Roboto"
+        }))
     elif name == "devrant_alt_label":
         element.setStyleSheet(qss({
             "color": theme.foreground_alt,
             "font-size": "20px",
             "font-family": "Roboto"
         }))
+    elif name == "devrant_link_label":
+        element.setStyleSheet(qss({
+            "color": theme.foreground_alt,
+            "font-size": "20px",
+            "font-family": "Roboto",
+            "text-decoration": "Underline"
+        }))
+        element.setCursor(Qt.PointingHandCursor)
     elif name == "devrant_button":
         element.setStyleSheet(qss({
             "background-color": theme.accent_background,
@@ -115,6 +141,16 @@ def apply_theme_to_widget(client, element, theme):
             "font-size": "30px",
             "margin": "0px",
             "padding": "0px"
+        }))
+    elif name == "devrant_input":
+        element.setStyleSheet(qss({
+            "background-color": theme.background,
+            "color": theme.foreground,
+            "border": "none",
+            "border-radius": "10px",
+            "padding": "8px",
+            "font-size": "20px",
+            "font-family": "Roboto"
         }))
 
 def apply_theme(client, root_element, theme=None):

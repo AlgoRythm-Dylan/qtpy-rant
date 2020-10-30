@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QPushButton, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt, QThreadPool
 
 from rantlib.core_application.event.event import EventEmitter
-from rantlib.core_application.ui.runnables.login import LoginRunnable
+from rantlib.core_application.ui.thread.login import LoginWorker
 from rantlib.core_application.event.login_form import *
 
 class LoginForm(QWidget, EventEmitter):
@@ -22,6 +22,7 @@ class LoginForm(QWidget, EventEmitter):
         self.password_input.setEchoMode(QLineEdit.Password)
         self.submit_button = QPushButton("Submit")
         self.submit_button.setObjectName("devrant_button")
+        self.submit_button.setDefault(True)
         self.error_message = QLabel()
         self.error_message.setWordWrap(True)
         self.error_message.setAlignment(Qt.AlignCenter)
@@ -32,7 +33,7 @@ class LoginForm(QWidget, EventEmitter):
         self.continue_as_guest_link.setAlignment(Qt.AlignHCenter)
         self.continue_as_guest_link.mousePressEvent = self.handle_continue_as_guest
 
-        self.submit_button.clicked.connect(self.handle_submit)
+        self.submit_button.pressed.connect(self.handle_submit)
 
         layout = QVBoxLayout()
         layout.setSpacing(15)
@@ -52,7 +53,7 @@ class LoginForm(QWidget, EventEmitter):
         #layout.addStretch()
         self.setLayout(layout)
 
-    def handle_submit(self, e):
+    def handle_submit(self):
         username = self.username_input.text()
         password = self.password_input.text()
         if len(username) == 0:
@@ -65,20 +66,20 @@ class LoginForm(QWidget, EventEmitter):
         self.dispatch("submit", event)
         if not event.cancelled:
             self.disable(True)
-            runnable = LoginRunnable(self.on_login_response, event.username, event.password)
-            self.thread_pool.start(runnable)
+            self.worker = LoginWorker(self.on_login_response, event.username, event.password)
+            self.worker.start()
 
     def handle_continue_as_guest(self, e):
         self.dispatch("continue_as_guest", ContinueAsGuestEvent())
 
-    def disable(self, enabled):
-        self.username_input.setDisabled(enabled)
-        self.password_input.setDisabled(enabled)
-        self.submit_button.setDisabled(enabled)
+    def disable(self, disabled):
+        self.username_input.setDisabled(disabled)
+        self.password_input.setDisabled(disabled)
+        self.submit_button.setDisabled(disabled)
 
     def on_login_response(self, login_event):
         self.disable(False)
-        if not login_attempt.success:
+        if not login_event.success:
             self.display_error(self.qtpy.language.get("login_failure"))
         self.dispatch("login", login_event)
 

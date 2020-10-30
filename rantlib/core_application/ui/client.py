@@ -34,17 +34,25 @@ class QtClient(Client):
 
     def run(self):
         if self.qtpy.args.theme_tool:
-            main_window = ThemeTool(self.qtpy)
-            self.windows.append(main_window)
-            self.main_window = main_window
+            spawn_theme_tool()
         else:
             if len(self.qtpy.auth_service.users) == 0:
-                login_window = LoginWindow(self.qtpy)
-                self.windows.append(login_window)
-                self.main_window = login_window
+                self.spawn_login_window()
             else:
-                main_window = MainWindow(self.qtpy)
-                self.windows.append(main_window)
-                self.main_window = main_window
-        self.main_window.show()
+                self.spawn_main_window()
         self.qapplication.exec_()
+
+    def spawn_theme_tool(self):
+        theme_tool = ThemeTool(self.qtpy)
+        self.windows.append(main_window)
+        theme_tool.show()
+
+    def spawn_main_window(self):
+        main_window = MainWindow(self.qtpy)
+        self.windows.append(main_window)
+        main_window.show()
+
+    def spawn_login_window(self):
+        login_window = LoginWindow(self.qtpy)
+        self.windows.append(login_window)
+        login_window.show()

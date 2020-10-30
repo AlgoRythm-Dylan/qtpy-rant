@@ -1,6 +1,6 @@
 from rantlib.core_application.ui.window.window import Window
 from rantlib.core_application.ui.theme import *
-from rantlib.core_application.ui.runnables.load_themes import LoadThemesRunnable
+from rantlib.core_application.ui.thread.load_themes import LoadThemesWorker
 from rantlib.core_application.ui.parts.pg_theme_sample import ThemeSamplePage
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QScrollArea
 from PyQt5.QtCore import Qt, QThreadPool
@@ -12,8 +12,7 @@ class ThemeTool(Window):
         super().__init__(qtpy)
         self.setWindowTitle("qtpy-rant Theme Tool")
         self.setMinimumSize(550, 450)
-
-        self.thread_pool = QThreadPool()
+        
         self.theme_list = None
 
         widget = QWidget()
@@ -103,7 +102,8 @@ class ThemeTool(Window):
         self.spawn_theme_loader()
 
     def spawn_theme_loader(self):
-        self.thread_pool.start(LoadThemesRunnable(self.accept_theme_list))
+        self.worker = LoadThemesWorker(self.accept_theme_list)
+        self.worker.start()
 
     def accept_theme_list(self, theme_list):
         self.theme_list = theme_list

@@ -36,11 +36,17 @@ class EventEmitter:
                 print(ex)
 
     def on(self, event_name, handler):
+        if not isinstance(handler, EventHandler) and callable(handler):
+            # This is probably a simple function. Wrap it in a handler
+            event_handler = EventHandler()
+            event_handler.handle = handler
+            handler = event_handler 
         is_new = not event_name in self.listeners.keys()
         if is_new:
             self.listeners[event_name] = [handler]
         else:
             self.listeners[event_name].append(handler)
+        return handler # Since we may have created a handler from function
 
     def off(self, event_name, handler):
         events_list = self.listeners.get(event_name, [])

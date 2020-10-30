@@ -25,13 +25,20 @@ class LoginWindow(Window):
         self.login_form = LoginForm(qtpy)
         self.login_form.setFixedWidth(400)
         layout.addWidget(self.login_form, alignment=Qt.AlignTop)
-        #layout.addStretch()
 
         self.setCentralWidget(self.layout_widget)
         apply_theme(qtpy.client, self.layout_widget)
 
-    def continue_as_guest(self):
-        pass
+        self.login_form.on("continue_as_guest", self.continue_as_guest)
+        self.login_form.on("login", self.on_login)
 
-    def successful_login(self):
-        pass
+    def continue_as_guest(self, ev):
+        self.qtpy.client.spawn_main_window()
+        self.close()
+
+    def on_login(self, ev):
+        if not ev.success:
+            return
+        self.qtpy.auth_service.add_user(ev.auth, set_current=True)
+        self.qtpy.client.spawn_main_window()
+        self.close()

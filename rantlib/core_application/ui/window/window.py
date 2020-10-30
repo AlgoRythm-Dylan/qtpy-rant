@@ -36,3 +36,4 @@ class Window(QMainWindow):
 
     def closeEvent(self, event):
         self.record_state()
+        self.qtpy.client.windows.remove(self)

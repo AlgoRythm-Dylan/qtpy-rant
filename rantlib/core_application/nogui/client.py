@@ -9,6 +9,7 @@ from os import walk
 from pathlib import Path
 from importlib import import_module
 from getpass import getpass
+import traceback
 
 from rantlib.core_application.client import Client
 from rantlib.core_application.nogui.command.command import CommandInput
@@ -191,7 +192,10 @@ class TerminalClient(Client):
             try:
                 executor.execute(command_input)
             except Exception as e:
-                print(f"{self.qtpy.language.get('cli_command_failure')}: \n{e}", file=sys.stderr)
+                if self.config.get("debug"):
+                    traceback.print_exc()
+                else:
+                    print(f"{self.qtpy.language.get('cli_command_failure')}: \n{e}", file=sys.stderr)
                 command_error = e
             executed_event = CommandExecutedEvent(executor, command_input, raw_command_text, error=command_error)
             self.qtpy.dispatch("command_executed", executed_event)

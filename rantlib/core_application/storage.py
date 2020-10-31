@@ -43,6 +43,8 @@ def read_data_file(path, default=None, print_error=False):
     return data
 
 # json.dumps is really dumb and ONLY works with primitive types
+# Note OCT 31 2020: I wish I could add airquotes to the "complex" part
+# of this function
 def complex_encoder(obj):
     return obj.__dict__
 
@@ -51,3 +53,8 @@ def write_data_file(path, data):
     file.write(json.dumps(data, default=complex_encoder))
     file.close()
     
+def append_with_max(arr, data, max_len):
+    while len(arr) + 1 > max_len:
+        arr.pop()
+    arr.append(data)
+    return data

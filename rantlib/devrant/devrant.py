@@ -266,7 +266,7 @@ def login(username, password):
         return auth
 
 def get_rants(mode="algo", time_range="day", limit=50, skip=0, token_id=None, token_key=None, user_id=None, raw_data=False):
-    url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={time_range}&limit={amount}&skip={skip}"
+    url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={time_range}&limit={limit}&skip={skip}"
     if token_id != None:
         url += f"&token_id={token_id}&token_key={token_key}&user_id={user_id}"
     request = requests.get(url)

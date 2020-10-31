@@ -2,9 +2,9 @@ from rantlib.core_application.ui.thread.rants import RantWorker
 from rantlib.core_application.event.event import EventEmitter
 from rantlib.devrant.devrant import *
 
-class RantGetter:
+class RantGetter(EventEmitter):
 
-    def __init__(self, EventEmitter):
+    def __init__(self):
         super().__init__()
         self.skip = 0
         self.stride = 50
@@ -20,7 +20,9 @@ class RantGetter:
             amount = self.stride
         if mode == None:
             mode = self.sort
-        data = get_rants(mode=mode,time_range=self.time_range,limit=amount,skip=self.skip,token_id=self.token_id,token_key=self.token_key,user_id=self.user_id)
+        rants = get_rants(mode=mode,time_range=self.time_range,
+                          limit=amount,skip=self.skip,token_id=self.token_id,
+                          token_key=self.token_key,user_id=self.user_id)
         self.skip += amount
         return rants
 

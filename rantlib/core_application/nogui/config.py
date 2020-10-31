@@ -8,3 +8,4 @@ class TerminalConfig(Config):
         self.set_default("preferred_width", 80)
         self.set_default("preference_colors_enabled", False)
         self.set_default("blank_command_repeats_last", False)
+        self.set_default("debug", False)

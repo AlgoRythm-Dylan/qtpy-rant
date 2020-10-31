@@ -2,6 +2,7 @@ from rantlib.core_application.nogui.command.command import Command
 from rantlib.devrant.ezrant import RantGetter
 from rantlib.core_application.lang import simple_replace
 from rantlib.core_application.nogui.util import *
+from rantlib.core_application.storage import append_with_max
 
 class RantCommand(Command):
 
@@ -13,10 +14,25 @@ class RantCommand(Command):
         self.rant_getter = RantGetter()
         self.rant_getter.stride = 20
         self.rant_buffer = []
+        self.read_rants = [] # Read as in "has already been read"
         self.last_rant = None
 
     def execute(self, args):
-        self.display_rant()
+        args = args.args
+        if len(args) == 0:
+            self.display_rant()
+        if len(args) == 1:
+            if args[0] == "next":
+                self.display_rant()
+            elif args[0] == "previous" or args[0] == "last":
+                if len(self.read_rants) == 0:
+                    print("There is no previous rant")
+                else:
+                    current_rant = self.client.temp_data.get("rant")
+                    if current_rant != None:
+                        self.rant_buffer.insert(0, current_rant)
+                    self.rant_buffer.insert(0, self.read_rants.pop(0))
+                    self.display_rant()
 
     def check_rant_buffer(self):
         if len(self.rant_buffer) == 0:
@@ -34,7 +50,9 @@ class RantCommand(Command):
 
     def display_rant(self):
         self.check_rant_buffer()
-        rant = self.rant_buffer.pop()
+        rant = self.rant_buffer.pop(0)
+        if self.client.temp_data.get("rant") != None:
+            append_with_max(self.read_rants, self.client.temp_data["rant"], 200)
         self.client.temp_data["rant"] = rant
         self.client.temp_data["comment_index"] = 0
         box = Box(self.client.config.get("preferred_width"))

@@ -10,7 +10,7 @@ class RantCommand(Command):
         super().__init__()
         self.client = client
         self.description = self.client.qtpy.language.get("cli_rant_command_description")
-        self.usage = "rant <?next|open>"
+        self.usage = "rant <?next|last|recent-autofeed>"
         self.rant_getter = RantGetter()
         self.rant_getter.stride = 20
         self.rant_buffer = []
@@ -33,7 +33,9 @@ class RantCommand(Command):
                         self.rant_buffer.insert(0, current_rant)
                     self.rant_buffer.insert(0, self.read_rants.pop(0))
                     self.display_rant()
-
+            elif args[0] == "recent-autofeed":
+                self.recent_autofeed()
+                
     def check_rant_buffer(self):
         if len(self.rant_buffer) == 0:
             print("Loading rants...")
@@ -68,6 +70,9 @@ class RantCommand(Command):
         last_panel = two_column(tags.pop(0), comments_text, box.inner_space()) + "".join(tags)
         box.add_section(last_panel)
         print(box.render(), end="")
+
+    def recent_autofeed(self):
+        print("This feed will update with the most recent posts until you quit by sending a Keyboard Interrupt (ctrl/cmd + c)")
 
     def help(self):
         Command.help(self)

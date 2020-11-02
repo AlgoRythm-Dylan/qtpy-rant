@@ -15,6 +15,8 @@ APP_VERSION = "3"
 BASE_URL  = "https://devrant.com/api"
 USER_ID_URL = BASE_URL + "/get-user-id"
 USERS_URL = BASE_URL + "/users"
+ME_URL = BASE_URL + "/me"
+FEED_URL = ME_URL + "/feed"
 LOGIN_URL = USERS_URL + "/auth-token"
 DEVRANT_URL = BASE_URL + "/devrant"
 RANTS_URL = DEVRANT_URL + "/rants"
@@ -283,4 +285,11 @@ def get_rants(mode="algo", time_range="day", limit=50, skip=0, token_id=None, to
         rant.data(rant_data)
         rants.append(rant)
     return rants
+    
+def get_notifs(user_id, token_id, token_key):
+    pass
+
+def get_feed(user_id, token_id, token_key):
+    url = f"{FEED_URL}?app={APP_VERSION}&user_id={user_id}&token_id={token_id}&token_key={token_key}"
+    req = requests.get(url)
     

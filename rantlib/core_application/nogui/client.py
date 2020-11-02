@@ -12,7 +12,7 @@ from getpass import getpass
 import traceback
 
 from rantlib.core_application.client import Client
-from rantlib.core_application.nogui.command.command import CommandInput
+from rantlib.core_application.nogui.command.command import CommandInput, Command
 from rantlib.core_application.nogui.config import TerminalConfig
 from rantlib.core_application.storage import STD_PATH_CLI_CONFIG
 from rantlib.core_application.event.command import *
@@ -66,6 +66,10 @@ class TerminalClient(Client):
         executor = command_register_event.executor
         alias = command_register_event.alias
         overwrite = command_register_event.overwrite
+
+        if not isinstance(executor, Command):
+            print(f"Error registerring {name}: {type(executor)} is not instance of Command")
+            continue
 
         insert = name not in self.commands or overwrite
         if insert:

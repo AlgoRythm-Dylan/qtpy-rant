@@ -69,7 +69,7 @@ class TerminalClient(Client):
 
         if not isinstance(executor, Command):
             print(f"Error registerring {name}: {type(executor)} is not instance of Command")
-            continue
+            return
 
         insert = name not in self.commands or overwrite
         if insert:

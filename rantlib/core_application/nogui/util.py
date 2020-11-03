@@ -1,3 +1,5 @@
+import sys
+
 windows_mode = False
 stdout = -11
 try:
@@ -53,8 +55,23 @@ windows_bg["white"] = windows_bg["green"] | windows_bg["blue"] | windows_bg["red
 windows_current_bg = windows_bg["black"]
 windows_current_fg = windows_fg["white"]
 
+windows_bold_fg = False
+windows_bold_bg = False
+
+windows_underline = False
+windows_reverse = False
+
 def do_windows_attrs():
-    windows_SetConsoleTextAttribute(windows_stdout(), windows_current_fg | windows_current_bg)
+    other = 0x0000
+    if windows_bold_fg:
+        other |= 0x0008
+    if windows_bold_bg:
+        other |= 0x0080
+    if windows_underline:
+        other |= 0x8000
+    if windows_reverse:
+        other |= 0x4000
+    windows_SetConsoleTextAttribute(windows_stdout(), windows_current_fg | windows_current_bg | other)
 
 nix_colors = {
     "black": 30,
@@ -68,28 +85,56 @@ nix_colors = {
     "reset": 0
 }
 
-def nix_color_code(code, bg=False):
-    print(f"\u001b[{code}{';' if bg else ''}m", end="")
+def nix_color_code(code, bg=False, bold=False):
+    print(f"\u001b[{code}{';' if bg else ''}{'1' if bold else ''}m", end="")
 
 def reset():
-    global windows_current_bg, windows_current_fg
+    global windows_current_bg, windows_current_fg, windows_bold_bg, windows_bold_fg, windows_underline, windows_reverse
     if windows_mode:
         windows_current_bg = windows_bg["black"]
         windows_current_fg = windows_fg["white"]
+        windows_bold_bg = False
+        windows_bold_fg = False
+        windows_underline = False
+        windows_reverse = False
         do_windows_attrs()
     else:
         nix_color_code("00")
 
-def console_color(color, bg=False):
-    global windows_current_fg, windows_current_bg
+def underline():
+    global windows_underline
+    if windows_mode:
+        windows_underline = True
+        do_windows_attrs()
+    else:
+        print("\u001b[4m", end="")
+
+def reverse():
+    global windows_reverse
+    if windows_mode:
+        windows_reverse = True
+        do_windows_attrs()
+    else:
+        print("\u001b[7m", end="")
+
+def flush():
+    sys.stdout.flush()
+
+def console_color(color, bg=False, bold=False):
+    global windows_current_fg, windows_current_bg, windows_bold_bg, windows_bold_fg
     if windows_mode:
         if bg == False:
             windows_current_fg = windows_fg[color]
         else:
             windows_current_bg = windows_bg[color]
+        if bold:
+            if bg:
+                windows_bold_bg = True
+            else:
+                windows_bold_fg = True
         do_windows_attrs()
     else:
-        nix_color_code(nix_colors[color])
+        nix_color_code(nix_colors[color], bg=bg, bold=bold)
 
 def two_column(text1, text2, width):
     space_between = width - (len(text1) + len(text2))

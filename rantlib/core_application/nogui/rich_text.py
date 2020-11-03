@@ -3,18 +3,40 @@ from util import *
 
 class Text:
 
-    def __init__(self, text=""):
+    def __init__(self, text="", color="white", background="black"):
         self.text = text
-        self.color = None # Default color
-        self.background = None # Default background
+        self.color = color
+        self.background = background
+        self.underlined = False
+        self.reversed = False
+        self.bold = False
+        self.bright_background = False
 
-class RenderProgress:
+class RichCharacter:
 
-    def __init__(self):
-        self.text_object_index = 0
-        self.text_object_interior_index = 0
-        self.text_index = 0
-        self.line = 0
+    def __init__(self, char, text_obj):
+        self.character = char
+        self.color = text_obj.color
+        self.background = text_obj.background
+        self.underlined = text_obj.underlined
+        self.reversed = text_obj.reversed
+        self.bold = text_obj.bold
+        self.bright_background = text_obj.bright_background
+
+    def has_same_formatting_as(self, other_char):
+        return (self.color == other_char.color and
+                self.background == other_char.background and
+                self.underlined == other_char.underlined and
+                self.reversed == other_char.reversed and
+                self.bold == other_char.bold and
+                self.bright_background == other_char.bright_background)
+
+ALIGN_LEFT = "left"
+ALIGN_CENTER = "center"
+ALIGN_RIGHT = "right"
+
+LEFT_TO_RIGHT = "ltr"
+RIGHT_TO_LEFT = "rtl"
 
 class RichText:
 
@@ -25,8 +47,14 @@ class RichText:
         self.max_height = None
         self.min_width = None
         self.min_height = None
-        self.alignment = "left"
+        self.alignment = ALIGN_LEFT
+        self.writing_direction = LEFT_TO_RIGHT
+        # If a word will be chopped into two lines, bump it to the next line.
+        self.word_wrap = True
+        # Break words longer than max_width into multiple lines
+        self.word_break = True
         self.preserve_whitespace = False
+        self.preserve_leading_whitespace = False
 
     def fixed_width(width):
         self.max_width = width
@@ -36,60 +64,118 @@ class RichText:
         self.max_height = height
         self.min_height = height
 
-    def has_more_lines(self, progress):
-        on_last_slice = progress.text_object_index >= len(self.text) - 1
-        last_slice_text_length = len(self.text[len(self.text) - 1].text)
-        at_end_of_last_slice = progress.text_object_interior_index >= last_slice_text_length - 1
-        return not (on_last_slice and at_end_of_last_slice)
+    def compile(self):
+        # Shortcut if this object is empty
+        if len(self.text) == 0:
+            return []
 
-    def start_render(self):
-        progress = RenderProgress()
-        return progress
+        # Memory to render to
+        lines = [[]]
 
-    def render(self, progress):
-        while self.has_more_lines(progress):
-            self.render_line(progress)
-        return progress
-
-    def render_line(self, progress, end=None):
-        characters_to_render = self.total_lenth - progress.text_index
-        if self.max_width != None and characters_to_render > self.max_width:
-            characters_to_render = self.max_width
-        characters_rendered = 0
+        # State variables
         beginning_of_line = True
         last_character = None
-        current_slice = self.text[progress.text_object_index]
-        while characters_rendered < characters_to_render:
-            # Make sure index is within bounds of current slice
-            if progress.text_object_interior_index > len(current_slice.text) - 1:
-                has_next_slice = not progress.text_object_index > len(self.text) - 1
-                if has_next_slice:
-                    progress.text_object_index += 1
-                    progress.text_object_interior_index = 0
-                    current_slice = self.text[progress.text_object_index]
+        index = 0
+        line_index = 0
+        slice_index = 0
+        text_index = 0
+
+        while index < self.total_lenth:
+            # The goal for this iteration is to get the next character to
+            # render and its formatting and append it to the current line
+            line = lines[line_index]
+            slice = self.text[slice_index]
+            # We need to find the next renderable character
+            character = None
+            while character == None:
+                # Check if end of slice reached
+                if text_index > len(slice.text) - 1:
+                    slice_index += 1
+                    text_index = 0
+                    if slice_index < len(self.text):
+                        # There's another slice to try
+                        slice = self.text[slice_index]
+                        continue
+                    else:
+                        # We are out of slices. Exit and return lines
+                        return lines
                 else:
-                    break
-            character = current_slice.text[progress.text_object_interior_index]
-            print(character, end="")
+                    character = slice.text[text_index]
+                    text_index += 1
+            # We now hav a valid character and must determine whether or
+            # not to display it
+            if character == " ":
+                if beginning_of_line:
+                    if self.preserve_leading_whitespace:
+                        line.append(RichCharacter(character, slice))
+                else:
+                    if self.preserve_whitespace or last_character != " ":
+                        line.append(RichCharacter(character, slice))
+                index += 1
+            elif character == "\n" or (self.max_width != None and len(line) >= self.max_width):
+                # End this line and create another
+                line_index += 1
+                lines.append([])
+                beginning_of_line = True
+                index += 1
+            else:
+                line.append(RichCharacter(character, slice))
+                index += 1
+            if beginning_of_line and character != " ":
+                beginning_of_line = False
             last_character = character
-            progress.text_object_interior_index += 1
-            characters_rendered += 1
-        if end != None and end != "":
-            print(end, end="")
+        return lines # Just in case there was no text to render, reutrn empty list
+
+    def render(self, compiled_text=None, reset_after=True, reset_after_line=False):
+        if compiled_text == None:
+            compiled_text = self.compile()
+        for line in compiled_text:
+            self.render_line(line, reset_after=reset_after_line)
+        if reset_after:
+            reset()
+
+    def render_line(self, line, end="\n", reset_after=True):
+        last_character = None
+        for rich_character in line:
+            if last_character == None or not last_character.has_same_formatting_as(rich_character):
+                # Do formatting
+                if not last_character == None:
+                    flush() # Finalize color on Windows
+                reset()
+                console_color(rich_character.color, bold=rich_character.bold)
+                console_color(rich_character.background, bg=True, bold=rich_character.bright_background)
+                if rich_character.underlined:
+                    underline()
+                if rich_character.reversed:
+                    reverse()
+            print(rich_character.character, end="")
+            last_character = rich_character
+        flush()
+        print(end, end="")
+        if reset_after:
+            reset()
 
     def add_text(self, text, reset_format=False):
         if reset_format or len(self.text) == 0:
             self.text.append(Text(text=text))
+            self.total_lenth += len(text)
+        elif type(text) == Text:
+            self.text.append(text)
+            self.total_lenth += len(text.text)
         else:
             last_text = self.text[len(self.text) - 1]
             last_text.text += text
-        self.total_lenth += len(text)
+            self.total_lenth += len(text)
             
 
 if __name__ == "__main__":
     # Rendering test
     text = RichText()
-    progress = text.start_render()
-    text.add_text("Hello", reset_format=True)
-    text.add_text(" world", reset_format=True)
-    text.render(progress)
+    text.add_text("Hello\n")
+    formatted = Text("world")
+    #formatted.bold = True
+    #formatted.bright_background = True
+    #formatted.reversed = True
+    formatted.underlined = True
+    text.add_text(formatted)
+    text.render()

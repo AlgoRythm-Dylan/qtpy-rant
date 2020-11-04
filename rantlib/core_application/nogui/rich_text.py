@@ -38,6 +38,12 @@ ALIGN_RIGHT = "right"
 LEFT_TO_RIGHT = "ltr"
 RIGHT_TO_LEFT = "rtl"
 
+def is_word_breaker(character):
+    character = ord(character)
+    return not ((character >= ord('a') and character <= ord('z') and
+                 character >= ord('A') and character <= ord('Z') and
+                 character >= ord('0') and character <= ord('9'))
+
 class RichText:
 
     def __init__(self):
@@ -79,6 +85,8 @@ class RichText:
         line_index = 0
         slice_index = 0
         text_index = 0
+        characters_rendered = 0
+        last_word_breaker = None
 
         while index < self.total_lenth:
             # The goal for this iteration is to get the next character to
@@ -172,10 +180,5 @@ if __name__ == "__main__":
     # Rendering test
     text = RichText()
     text.add_text("Hello\n")
-    formatted = Text("world")
-    #formatted.bold = True
-    #formatted.bright_background = True
-    #formatted.reversed = True
-    formatted.underlined = True
-    text.add_text(formatted)
+    text.add_text(Text("world", color="blue"))
     text.render()

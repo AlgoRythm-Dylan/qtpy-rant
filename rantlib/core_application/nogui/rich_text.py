@@ -40,9 +40,10 @@ RIGHT_TO_LEFT = "rtl"
 
 def is_word_breaker(character):
     character = ord(character)
-    return not ((character >= ord('a') and character <= ord('z') and
-                 character >= ord('A') and character <= ord('Z') and
-                 character >= ord('0') and character <= ord('9'))
+    return not (
+        (character >= ord('a') and character <= ord('z')) and
+        (character >= ord('A') and character <= ord('Z')) and
+        (character >= ord('0') and character <= ord('9')))
 
 class RichText:
 
@@ -110,7 +111,7 @@ class RichText:
                 else:
                     character = slice.text[text_index]
                     text_index += 1
-            # We now hav a valid character and must determine whether or
+            # We now have a valid character and must determine whether or
             # not to display it
             if character == " ":
                 if beginning_of_line:

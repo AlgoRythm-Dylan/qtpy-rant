@@ -169,13 +169,16 @@ class Box:
         self.sections.append(text)
 
     def render(self):
-        rendered = ""
         padding = ' ' * self.h_padding
-        separator = f"+{'-'*(self.width - 2)}+\n"
+        separator = f"+{'-'*(self.width - 2)}+"
         for section in self.sections:
-            rendered += separator
-            lines = constrain_text(section, self.inner_space())
-            for line in lines:
-                rendered += two_column(f"|{padding}{line}", f"{padding}|", self.width) + "\n"
-        rendered += separator
-        return rendered
+            if type(section) == str:
+                lines = constrain_text(section, self.inner_space())
+                for line in lines:
+                    print(two_column(f"|{padding}{line}", f"{padding}|", self.width))
+            else:
+                for line in section.compile():
+                    print(f"|{padding}", end="")
+                    section.render_line(line, end="")
+                    print(f"{padding}|", end="")
+        print(separator)

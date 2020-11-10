@@ -39,7 +39,7 @@ class CommentCommand(Command):
             image = comment.attached_image
             image_lang = self.client.qtpy.language.get('image')
             box.add_section(f"{image_lang}: {image.url} ({image.width}x{image.height})")
-        print(box.render())
+        box.render()
         
 def register(client):
     client.register_command("comment",  CommentCommand(client))

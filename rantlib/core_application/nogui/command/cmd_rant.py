@@ -69,7 +69,7 @@ class RantCommand(Command):
         tags = constrain_text(", ".join(rant.tags), box.inner_space() - len(comments_text))
         last_panel = two_column(tags.pop(0), comments_text, box.inner_space()) + "".join(tags)
         box.add_section(last_panel)
-        print(box.render(), end="")
+        box.render()
 
     def recent_autofeed(self):
         print("This feed will update with the most recent posts until you quit by sending a Keyboard Interrupt (ctrl/cmd + c)")

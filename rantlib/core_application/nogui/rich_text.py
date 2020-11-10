@@ -142,6 +142,7 @@ class RichText:
             self.render_line(line, reset_after=reset_after_line)
         if reset_after:
             reset()
+            flush()
 
     def render_line(self, line, end="\n", reset_after=True):
         last_character = None
@@ -163,6 +164,7 @@ class RichText:
         print(end, end="")
         if reset_after:
             reset()
+            flush()
 
     def add_text(self, text, reset_format=False):
         if reset_format or len(self.text) == 0:

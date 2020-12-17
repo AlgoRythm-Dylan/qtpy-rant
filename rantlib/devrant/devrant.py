@@ -6,7 +6,9 @@
 
 if __name__ == "__main__":
     import sys
-    sys.path.append("C:\\Users\\Dylan\\Projects\\qtpy-rant")
+    import os
+    from pathlib import Path
+    sys.path.append(str(Path(os.path.abspath(__file__)).parent.parent.parent))
 
 # Imports
 import json
@@ -45,8 +47,43 @@ class RantAPI:
             return response
 
     @staticmethod
-    def get_rant(id):
-        return RantAPI.generic_request(f"{RANTS_URL}/{id}")
+    def get_rant(rant_id):
+        return RantAPI.generic_request(f"{RANTS_URL}/{rant_id}")
+
+    @staticmethod
+    def get_user_id(username):
+        data = RantAPI.generic_request(f"{USER_ID_URL}", params={"username": username})
+        return data["user_id"]
+
+    @staticmethod
+    def get_user(user_id, content="collabs"):
+        data = RantAPI.generic_request(f"{USERS_URL}/{user_id}", params={"content": content})
+        return data["profile"]
+
+    @staticmethod
+    def login(username, password):
+        return RantAPI.generic_request(f"{LOGIN_URL}", data={"username": username, "password": password})
+
+    @staticmethod
+    def rant_feed(mode="algo",
+                  time_range="day",
+                  limit=50,
+                  skip=0,
+                  token_id=None,
+                  token_key=None,
+                  user_id=None):
+        request_data = {
+            "sort": mode,
+            "range": time_range,
+            "limit": limit,
+            "skip": skip
+        }
+        if token_id != None:
+            request_data["token_id"] = token_id
+            request_data["token_key"] = token_key
+            request_data["user_id"] = user_id
+        return RantAPI.generic_request(f"{RANTS_URL}", data=request_data)["rants"]
+
 
 class Image(DataClass):
 
@@ -95,6 +132,7 @@ class Auth(DataClass):
 class User(DataClass):
 
     def __init__(self):
+        super().__init__()
         self.import_fields = {
             "username": str,
             "score": int,
@@ -117,6 +155,7 @@ class User(DataClass):
 class Comment(DataClass):
 
     def __init__(self):
+        super().__init__()
         self.import_fields = {
             "id": int,
             "rant_id": int,
@@ -124,14 +163,15 @@ class Comment(DataClass):
             "score": int,
             "created_time": int,
             "vote_state": int,
-            "user": object,
+            "user": User(),
             "attached_image": Image()
         }
+        self.init_fields()
 
     def has_image(self):
-        return self.attached_image != None
-
-    def to_string(self):
+        return self.attached_image != None and self.attached_image.url != None
+    
+    def __str__(self):
         return self.body
 
 class Rant(DataClass):
@@ -141,147 +181,95 @@ class Rant(DataClass):
         self.import_fields = {
             "id": int,
             "text": str,
-            "score": int
+            "score": int,
+            "created_time": int,
+            "attached_image": Image(),
+            "num_comments": int,
+            "comments": object,
+            "tags": object,
+            "vote_state": int,
+            "user_avatar": ProfileImage(),
+            "user_avatar_lg": ProfileImage(),
+            "user": User(),
+            "user_dpp": bool
         }
-
-class RantLib:
-"""Objective rant library"""
-
-    @staticmethod
-    def get_rant(id):
-        data = RantAPI.get_rant(id).get("rant")
-        rant = Rant()
-        rant.import_data(data)
-        return rant
-
-""" 
-
-# Data object for a rant
-class Rant:
-
-    def __init__(self):
-        self.id = None
-        self.text = None
-        self.score = None
-        self.created_time = None
-        self.attached_image = None
-        self.num_comments = None
-        self.comments = []
-        self.tags = None
-        self.vote_state = None
-        self.user_avatar = None
-        self.user = None
-        self.user_avatar_lg = None
-        self.user_dpp = None
-
-    def data(self, data):
-        rant = data
-        if rant.get("id") == None:
-            rant = data["rant"] # For loading from rant detail endpoint
-        self.id = rant["id"]
-        self.text = rant["text"]
-        self.score = rant["score"]
-        self.created_time = rant["created_time"]
-        if rant["attached_image"] != "":
-            self.attached_image = Image()
-            self.attached_image.data(rant["attached_image"])
-        self.num_comments = rant["num_comments"]
-        for comment_data in data.get("comments", []):
-            comment = Comment()
-            comment.data(comment_data)
-            self.comments.append(comment)
-        self.tags = rant["tags"]
-        self.vote_state = rant["vote_state"]
-        self.user = User()
-        self.user.id = rant["user_id"]
-        self.user.username = rant["user_username"]
-        self.user.score = rant["user_score"]
-        self.user_avatar = ProfileImage()
-        self.user_avatar.data(rant["user_avatar"])
-        self.user_avatar_lg = ProfileImage()
-        self.user_avatar_lg.data(rant["user_avatar_lg"])
-        self.user_dpp = rant.get("user_dpp", False)
+        self.init_fields()
 
     def has_image(self):
-        return self.attached_image != None
+        return self.attached_image != None and self.attached_image.url != None
 
     def comments_loaded(self):
-        return len(self.comments) == self.num_comments
+        return self.comments != None and len(self.comments) == self.num_comments
 
     def load(self):
-        self.data(get_full_rant(self.id, raw_data=True))
+        data = RantAPI.get_rant(self.id)
+        import_data = data.get("rant")
+        import_data["comments"] = data.get("comments")
+        self.import_data(import_data)
 
-    def to_string(self):
+    def after_data_import(self, data):
+        if data.get("user_username") != None:
+            self.user.id = data.get("user_id")
+            self.user.username = data.get("user_username")
+            self.user.score = data.get("user_score")
+        # Convert "raw" data dict to objective class
+        if type(self.comments) == list and len(self.comments) != 0 and not isinstance(self.comments[0], Comment):
+            objective_comments = []
+            for comment in self.comments:
+                obj_comment = Comment()
+                obj_comment.import_data(comment)
+                obj_comment.user.id = comment.get("user_id")
+                obj_comment.user.username = comment.get("user_username")
+                obj_comment.user.score = comment.get("user_score")
+                objective_comments.append(obj_comment)
+            self.comments = objective_comments
+
+    def __str__(self):
         return self.text
 
-def username_to_user_id(username):
-    url = f"{USER_ID_URL}?app={APP_VERSION}&username={username}"
-    request = requests.get(url)
-    data = request.json()
-    if request.status_code == HTTP_OK:
-        return data["user_id"]
-    else:
-        raise Exception(data.get("error"))
+class RantLib:
 
-def get_user(user_id, raw_data=False):
-    url = f"{USERS_URL}/{user_id}?app={APP_VERSION}&content=all"
-    user = User()
-    request = requests.get(url)
-    data = request.json()
-    if request.status_code == HTTP_OK:
-        if raw_data:
-            return data
-        else:
-            user = User()
-            user.data(data)
-            return user
-    else:
-        raise Exception(data.get("error"))
-
-def get_full_rant(id, raw_data=False):
-    url = f"{RANTS_URL}/{id}?app={APP_VERSION}"
-    req = requests.get(url)
-    data = req.json()
-    if data.get("success") != True:
-        raise Exception(data.get("error"))
-    if raw_data:
-        return data
-    else:
+    @staticmethod
+    def get_rant(rant_id):
+        data = RantAPI.get_rant(rant_id)
+        import_data = data.get("rant")
+        import_data["comments"] = data.get("comments")
         rant = Rant()
-        rant.data(data)
+        rant.import_data(import_data)
         return rant
 
-def login(username, password):
-    data = {"app": APP_VERSION, "username": username, "password": password}
-    req = requests.post(LOGIN_URL, data=data)
-    data = req.json()
-    status_code = req.status_code
-    if status_code != HTTP_OK:
-        raise Exception(data.get("error"))
-    else:
-        auth = Auth()
-        auth.data(data)
-        auth.update_username()
-        return auth
+    @staticmethod
+    def get_user(user_id):
+        data = RantAPI.get_user(user_id)
+        user = User()
+        user.import_data(data)
+        return user
 
-def get_rants(mode="algo", time_range="day", limit=50, skip=0, token_id=None, token_key=None, user_id=None, raw_data=False):
-    url = f"{RANTS_URL}?app={APP_VERSION}&sort={mode}&range={time_range}&limit={limit}&skip={skip}"
-    if token_id != None:
-        url += f"&token_id={token_id}&token_key={token_key}&user_id={user_id}"
-    request = requests.get(url)
-    data = request.json()
-    success = data.get("success", False)
-    if not success:
-        raise Exception(data.get("error"))
-    if raw_data:
-        return data
-    rants_data = data.get("rants")
-    rants = []
-    for rant_data in rants_data:
-        rant = Rant()
-        rant.data(rant_data)
-        rants.append(rant)
-    return rants
+    @staticmethod
+    def rant_feed(mode="algo",
+            time_range="day",
+            limit=50,
+            skip=0,
+            token_id=None,
+            token_key=None,
+            user_id=None):
+        rants = RantAPI.rant_feed(
+            mode=mode,
+            time_range=time_range,
+            limit=limit,
+            skip=skip,
+            token_id=token_id,
+            token_key=token_key,
+            user_id=user_id)
+        objective_rants = []
+        for rant in rants:
+            obj_rant = Rant()
+            obj_rant.import_data(rant)
+            objective_rants.append(obj_rant)
+        return objective_rants
+        
+
+""" 
     
 def get_notifs(user_id, token_id, token_key):
     pass
@@ -293,4 +281,7 @@ def get_feed(user_id, token_id, token_key):
 """
 
 if __name__ == "__main__":
-    print(RantLib.get_rant(3744668).text)
+    #print(RantLib.get_rant(3744668).comments)
+    #print(RantAPI.get_user(RantAPI.get_user_id("AlgoRythm")))
+    #print(RantLib.get_user(RantAPI.get_user_id("AlgoRythm")).avatar)
+    print(RantLib.rant_feed())

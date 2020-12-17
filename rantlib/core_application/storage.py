@@ -74,8 +74,11 @@ class DataClass:
             return # Don't add this item
         type_requirement = self.import_fields.get(key, None)
         if isinstance(type_requirement, DataClass):
-            type_requirement.import_data(value)
-            self.__dict__[key] = value
+            try:
+                type_requirement.import_data(value)
+                self.__dict__[key] = type_requirement
+            except:
+                pass
         else:
             if type_requirement == object or type_requirement == None or type(value) == type_requirement:
                 self.__dict__[key] = value
@@ -107,10 +110,12 @@ class DataClass:
 
     def init_fields(self):
         self_keys = self.__dict__.keys()
-        import_field_keys = self.import_fields.keys()
-        for key in import_field_keys:
+        for key, value in self.import_fields.items():
             if not key in self_keys:
-                self.__dict__[key] = None
+                if isinstance(value, DataClass):
+                    self.__dict__[key] = value
+                else:
+                    self.__dict__[key] = None
 
     def after_data_import(self, data): # to be overridden by subclasses
         pass

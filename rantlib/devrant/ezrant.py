@@ -1,6 +1,6 @@
 from rantlib.core_application.ui.thread.rants import RantWorker
 from rantlib.core_application.event.event import EventEmitter
-from rantlib.devrant.devrant import *
+from rantlib.devrant.devrant import RantLib
 
 class RantGetter(EventEmitter):
 
@@ -20,9 +20,9 @@ class RantGetter(EventEmitter):
             amount = self.stride
         if mode == None:
             mode = self.sort
-        rants = get_rants(mode=mode,time_range=self.time_range,
-                          limit=amount,skip=self.skip,token_id=self.token_id,
-                          token_key=self.token_key,user_id=self.user_id)
+        rants = RantLib.rant_feed(mode=mode,time_range=self.time_range,
+                                  limit=amount,skip=self.skip,token_id=self.token_id,
+                                  token_key=self.token_key,user_id=self.user_id)
         self.skip += amount
         return rants
 
@@ -34,5 +34,5 @@ class RantGetter(EventEmitter):
         if not self.worker == None:
             self.worker = RantWorker(mode=mode)
 
-    def accept_workder_data(self, rants):
+    def accept_worker_data(self, rants):
         pass

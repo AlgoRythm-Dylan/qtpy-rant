@@ -1,5 +1,5 @@
 from rantlib.core_application.ui.thread.worker import Worker
-from rantlib.devrant.devrant import get_rants
+from rantlib.devrant.devrant import RantLib
 
 class RantWorker(Worker):
 
@@ -16,9 +16,9 @@ class RantWorker(Worker):
         self.user_id = user_id
 
     def run(self):
-        self.rants = get_rants(mode=self.mode, time_range=self.time_range,
-                               limit=self.limit, skip=self.skip, token_id=self.token_id,
-                               token_key=self.token_key, user_id=self.user_id)
+        self.rants = RantLib.rant_feed(mode=self.mode, time_range=self.time_range,
+                                       limit=self.limit, skip=self.skip, token_id=self.token_id,
+                                       token_key=self.token_key, user_id=self.user_id)
 
     def finish(self):
         self.callback(self.rants)

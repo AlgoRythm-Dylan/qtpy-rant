@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 # Append current directory to path to load our libraries
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = "0.1.0"
 
@@ -13,7 +13,6 @@ from rantlib.core_application.auth import AuthService
 from rantlib.core_application.config import QtPyRantConfig
 from rantlib.core_application.lang import load_language
 from rantlib.core_application.storage import STD_PATH_APP_CONFIG
-from rantlib.devrant.devrant import login
 
 # Main application class. Has the respobsibility of
 # keeping application data and providing some

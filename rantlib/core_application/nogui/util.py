@@ -172,6 +172,7 @@ class Box:
         padding = ' ' * self.h_padding
         separator = f"+{'-'*(self.width - 2)}+"
         for section in self.sections:
+            print(separator)
             if type(section) == str:
                 lines = constrain_text(section, self.inner_space())
                 for line in lines:

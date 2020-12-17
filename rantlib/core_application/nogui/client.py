@@ -158,7 +158,10 @@ class TerminalClient(Client):
             imported_module = import_module(modstr)
             imported_module.register(self)
         except Exception as e:
-            print(f"Could not import module {modstr}: {e}")
+            if self.config.get("debug"):
+                traceback.print_exc()
+            else:
+                print(f"Could not import module {modstr}: {e}")
     
     def execute_text(self, raw_command_text):
         if raw_command_text == self.qtpy.language.get("cli_exit"):

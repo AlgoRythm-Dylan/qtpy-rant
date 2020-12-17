@@ -3,20 +3,20 @@
 
 ## 1) Create the File
 Writing a command for QtPy-Rant CLI Client is very simple. First,
-make a python file in `rantlib/core_application/nogui/command`. **The**
+make a python file in `rantlib/app/cli/command`. **The**
 **file must start with cmd_ to be dynamically imported**. Example: 
 `cmd_helloworld.py`
 
 ## 2) Create the Class
 Inside `cmd_helloworld.py`, you need to import the `Command` class from
-`rantlib.core_application.nogui.command` and write a class that extends it
+`rantlib.app.cli.command` and write a class that extends it
 
 You'll probably want to implement the constructor and the `execute`
 functions. The `execute` function in our class will just print
 out "Hello World" no matter what arguments are passed to it.
 
 ```python
-from rantlib.core_application.nogui.command import Command
+from rantlib.app.cli.command import Command
 
 class HelloWorldCommand(Command):
 
@@ -56,7 +56,7 @@ Hello world!
 All together, that's:
 
 ```python
-from rantlib.core_application.nogui.command import Command
+from rantlib.app.cli.command import Command
 
 class HelloWorldCommand(Command):
 

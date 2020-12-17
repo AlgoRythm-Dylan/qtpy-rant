@@ -8,11 +8,11 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = "0.1.0"
 
-from rantlib.core_application.event.event import EventEmitter
-from rantlib.core_application.auth import AuthService
-from rantlib.core_application.config import QtPyRantConfig
-from rantlib.core_application.lang import load_language
-from rantlib.core_application.storage import STD_PATH_APP_CONFIG
+from rantlib.app.event.event import EventEmitter
+from rantlib.app.auth import AuthService
+from rantlib.app.config import QtPyRantConfig
+from rantlib.app.lang import load_language
+from rantlib.app.storage import STD_PATH_APP_CONFIG
 
 # Main application class. Has the respobsibility of
 # keeping application data and providing some
@@ -42,11 +42,11 @@ class QtPyApp(EventEmitter):
         
 
 def start_gui(qtpy):
-    from rantlib.core_application.ui.client import QtClient
+    from rantlib.app.gui.client import QtClient
     qtpy.client = QtClient(qtpy)
 
 def start_cli(qtpy):
-    from rantlib.core_application.nogui.client import TerminalClient
+    from rantlib.app.cli.client import TerminalClient
     qtpy.client = TerminalClient(qtpy)
 
 def start_app(qtpy):

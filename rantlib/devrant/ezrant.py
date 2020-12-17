@@ -1,5 +1,5 @@
-from rantlib.core_application.ui.thread.rants import RantWorker
-from rantlib.core_application.event.event import EventEmitter
+from rantlib.app.gui.thread.rants import RantWorker
+from rantlib.app.event.event import EventEmitter
 from rantlib.devrant.devrant import RantLib
 
 class RantGetter(EventEmitter):

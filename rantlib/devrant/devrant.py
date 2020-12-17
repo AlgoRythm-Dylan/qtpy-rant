@@ -14,7 +14,7 @@ if __name__ == "__main__":
 import json
 import requests
 
-from rantlib.core_application.storage import DataClass
+from rantlib.app.storage import DataClass
 
 APP_VERSION = "3"
 BASE_URL  = "https://devrant.com/api"

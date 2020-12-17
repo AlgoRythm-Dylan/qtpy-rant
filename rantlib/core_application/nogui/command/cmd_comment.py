@@ -33,7 +33,10 @@ class CommentCommand(Command):
         self.client.temp_data["comment_index"] += 1
         box = Box(self.client.config.get("preferred_width"))
         col1 = f"{self.client.qtpy.language.get('score')}: {comment.score}"
-        col2 = f"{comment.user.username} ({comment.user.score})"
+        op_text = ""
+        if comment.user.id == rant.user.id:
+            op_text = "[OP]"
+        col2 = f"{comment.user.username} {op_text} ({comment.user.score})"
         box.add_section(two_column(col1, col2, box.inner_space()))
         comment_rich_text = RichText(Text(comment.body))
         comment_rich_text.fixed_width(box.inner_space())

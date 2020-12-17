@@ -1,5 +1,4 @@
-#from rantlib.core_application.nogui.util import *
-from util import *
+from rantlib.core_application.nogui.util import *
 
 class Text:
 
@@ -39,17 +38,19 @@ LEFT_TO_RIGHT = "ltr"
 RIGHT_TO_LEFT = "rtl"
 
 def is_word_breaker(character):
+    text_char = character
     character = ord(character)
     return not (
-        (character >= ord('a') and character <= ord('z')) and
-        (character >= ord('A') and character <= ord('Z')) and
-        (character >= ord('0') and character <= ord('9')))
+        (character >= ord('a') and character <= ord('z')) or
+        (character >= ord('A') and character <= ord('Z')) or
+        (character >= ord('0') and character <= ord('9')) or
+        text_char in ('(', ')', '"', "%", '\'', '!', '?'))
 
 class RichText:
 
-    def __init__(self):
+    def __init__(self, raw_text=None):
         self.text = []
-        self.total_lenth = 0
+        self.total_length = 0
         self.max_width = None
         self.max_height = None
         self.min_width = None
@@ -63,11 +64,14 @@ class RichText:
         self.preserve_whitespace = False
         self.preserve_leading_whitespace = False
 
-    def fixed_width(width):
+        if raw_text != None:
+            self.add_text(raw_text)
+
+    def fixed_width(self, width):
         self.max_width = width
         self.min_width = width
 
-    def fixed_height(height):
+    def fixed_height(self, height):
         self.max_height = height
         self.min_height = height
 
@@ -88,11 +92,13 @@ class RichText:
         text_index = 0
         characters_rendered = 0
         last_word_breaker = 0
+        last_line_broken_explicitly = True # Did the last line end with a \n?
 
-        while index < self.total_lenth:
+        while index < self.total_length:
             # The goal for this iteration is to get the next character to
             # render and its formatting and append it to the current line
             line = lines[line_index]
+            beginning_of_line = len(line) == 0
             slice = self.text[slice_index]
             # We need to find the next renderable character
             character = None
@@ -113,27 +119,47 @@ class RichText:
                     text_index += 1
             # We now have a valid character and must determine whether or
             # not to display it
-            if character == " ":
+            if character == "\n" or (self.max_width != None and len(line) >= self.max_width):
+                # End this line and create another
+                if character == "\n":
+                    last_line_broken_explicitly = True
+                else:
+                    last_line_broken_explicitly = False
+                index += 1
+                lines.append([])
+                line_index += 1
+                if self.max_width != None and len(line) >= self.max_width and self.word_wrap:
+                    # Manage word wrap
+                    i = len(line) - 1
+                    amount_to_reverse = 1
+                    while i > 0 and not is_word_breaker(line[i].character):
+                        line.pop(i)
+                        amount_to_reverse += 1
+                        i -= 1
+                    index -= amount_to_reverse
+                    i = amount_to_reverse
+                    while i > 0:
+                        if text_index == 0:
+                            slice_index -= 1
+                            slice = self.text[slice_index]
+                            text_index = len(slice.text) - 1
+                        text_index -= 1
+                        i -= 1
+                line = lines[line_index]
+                beginning_of_line = True
+            elif character == " ":
                 if beginning_of_line:
-                    if self.preserve_leading_whitespace:
+                    if self.preserve_leading_whitespace and last_line_broken_explicitly:
                         line.append(RichCharacter(character, slice))
                 else:
                     if self.preserve_whitespace or last_character != " ":
                         line.append(RichCharacter(character, slice))
                 index += 1
-            elif character == "\n" or (self.max_width != None and len(line) >= self.max_width):
-                # End this line and create another
-                line_index += 1
-                lines.append([])
-                beginning_of_line = True
-                index += 1
             else:
                 line.append(RichCharacter(character, slice))
                 index += 1
-            if beginning_of_line and character != " ":
-                beginning_of_line = False
             last_character = character
-        return lines # Just in case there was no text to render, reutrn empty list
+        return lines # Just in case there was no text to render, return empty list
 
     def render(self, compiled_text=None, reset_after=True, reset_after_line=False):
         if compiled_text == None:
@@ -146,6 +172,7 @@ class RichText:
 
     def render_line(self, line, end="\n", reset_after=True):
         last_character = None
+        characters_rendered = 0
         for rich_character in line:
             if last_character == None or not last_character.has_same_formatting_as(rich_character):
                 # Do formatting
@@ -160,6 +187,9 @@ class RichText:
                     reverse()
             print(rich_character.character, end="")
             last_character = rich_character
+            characters_rendered += 1
+        if self.min_width != None and characters_rendered < self.min_width:
+            print(" " * (self.min_width - characters_rendered), end="")
         flush()
         print(end, end="")
         if reset_after:
@@ -167,21 +197,14 @@ class RichText:
             flush()
 
     def add_text(self, text, reset_format=False):
-        if reset_format or len(self.text) == 0:
-            self.text.append(Text(text=text))
-            self.total_lenth += len(text)
-        elif type(text) == Text:
+        if type(text) == Text:
             self.text.append(text)
-            self.total_lenth += len(text.text)
+            self.total_length += len(text.text)
         else:
-            last_text = self.text[len(self.text) - 1]
-            last_text.text += text
-            self.total_lenth += len(text)
-            
-
-if __name__ == "__main__":
-    # Rendering test
-    text = RichText()
-    text.add_text("Hello\n")
-    text.add_text(Text("world", color="blue"))
-    text.render()
+            if reset_format or len(self.text) == 0:
+                self.text.append(Text(text=text))
+                self.total_length += len(text)
+            else:
+                last_text = self.text[len(self.text) - 1]
+                last_text.text += text
+                self.total_length += len(text)

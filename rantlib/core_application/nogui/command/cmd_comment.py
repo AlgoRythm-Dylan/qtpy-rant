@@ -1,5 +1,6 @@
 from rantlib.core_application.nogui.util import *
 from rantlib.core_application.nogui.command.command import Command
+from rantlib.core_application.nogui.rich_text import RichText, Text
 
 class CommentCommand(Command):
 
@@ -34,7 +35,9 @@ class CommentCommand(Command):
         col1 = f"{self.client.qtpy.language.get('score')}: {comment.score}"
         col2 = f"{comment.user.username} ({comment.user.score})"
         box.add_section(two_column(col1, col2, box.inner_space()))
-        box.add_section(comment.body)
+        comment_rich_text = RichText(Text(comment.body))
+        comment_rich_text.fixed_width(box.inner_space())
+        box.add_section(comment_rich_text)
         if comment.has_image():
             image = comment.attached_image
             image_lang = self.client.qtpy.language.get('image')

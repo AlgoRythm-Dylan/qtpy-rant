@@ -3,6 +3,7 @@ from rantlib.devrant.ezrant import RantGetter
 from rantlib.core_application.lang import simple_replace
 from rantlib.core_application.nogui.util import *
 from rantlib.core_application.storage import append_with_max
+from rantlib.core_application.nogui.rich_text import RichText, Text
 
 class RantCommand(Command):
 
@@ -61,7 +62,9 @@ class RantCommand(Command):
         score_string = f"{self.client.qtpy.language.get('score')}: {rant.score}, "
         score_string += f"{self.client.qtpy.language.get('rant_id')}: {rant.id}"
         box.add_section(two_column(score_string, f"{rant.user.username} ({rant.user.score})", box.inner_space()))
-        box.add_section(rant.text)
+        rant_rich_text = RichText(Text(rant.text))
+        rant_rich_text.fixed_width(box.inner_space())
+        box.add_section(rant_rich_text)
         if rant.has_image():
             image_str = f"{rant.attached_image.url} ({rant.attached_image.width}x{rant.attached_image.height})"
             box.add_section(f"{self.client.qtpy.language.get('image')}: {image_str}")

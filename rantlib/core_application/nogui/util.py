@@ -181,5 +181,5 @@ class Box:
                 for line in section.compile():
                     print(f"|{padding}", end="")
                     section.render_line(line, end="")
-                    print(f"{padding}|", end="")
+                    print(f"{padding}|")
         print(separator)

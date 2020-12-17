@@ -3,8 +3,8 @@ import sys
 import argparse
 from pathlib import Path
 
-# Append current directory to PYTHONPATH to load our libraries
-sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+# Append current directory to path to load our libraries
+sys.path.append(os.path.dirname(__file__))
 
 VERSION = "0.1.0"
 

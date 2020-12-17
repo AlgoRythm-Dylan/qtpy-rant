@@ -87,7 +87,7 @@ class RichText:
         slice_index = 0
         text_index = 0
         characters_rendered = 0
-        last_word_breaker = None
+        last_word_breaker = 0
 
         while index < self.total_lenth:
             # The goal for this iteration is to get the next character to

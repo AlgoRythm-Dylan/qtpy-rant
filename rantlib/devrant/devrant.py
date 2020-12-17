@@ -4,12 +4,15 @@
 #
 ####################################
 
+if __name__ == "__main__":
+    import sys
+    sys.path.append("C:\\Users\\Dylan\\Projects\\qtpy-rant")
+
 # Imports
 import json
 import requests
 
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
+from rantlib.core_application.storage import DataClass
 
 APP_VERSION = "3"
 BASE_URL  = "https://devrant.com/api"
@@ -23,43 +26,65 @@ RANTS_URL = DEVRANT_URL + "/rants"
 RANDOM_RANT_URL = RANTS_URL + "/surprise"
 COLLABS_URL = DEVRANT_URL + "/collabs"
 
-class Image:
+class RantAPIException(Exception):
+    """Exception raised when an error is returned by the devRant REST API"""
+
+class RantAPI:
+
+    @staticmethod
+    def generic_request(url, params={}, data={}, method="GET"):
+        if params.get("app") == None:
+            params["app"] = APP_VERSION
+        response = requests.request(method,
+                                    url,
+                                    params=params,
+                                    data=data).json()
+        if response.get("success") == False:
+            raise RantAPIException(response.get("error"))
+        else:
+            return response
+
+    @staticmethod
+    def get_rant(id):
+        return RantAPI.generic_request(f"{RANTS_URL}/{id}")
+
+class Image(DataClass):
 
     def __init__(self):
-        self.url = None
-        self.width = None
-        self.height = None
+        super().__init__()
+        self.import_fields = {
+            "url": str,
+            "width": int,
+            "height": int
+        }
+        self.init_fields()
 
-    def data(self, data):
-        self.url = data["url"]
-        self.width = data["width"]
-        self.height = data["height"]
-
-class ProfileImage:
-
-    def __init__(self):
-        self.background_color = None # More descriptive than "b"
-        self.image_url = None # More descriptive than "i"
-
-    def data(self, data):
-        self.background_color = data["b"]
-        self.image_url = data.get("i", None)
-
-class Auth:
+class ProfileImage(DataClass):
 
     def __init__(self):
-        self.id = None
-        self.key = None
-        self.expire_time = None
-        self.username = None
+        super().__init__()
+        self.import_fields = {
+            "b": str,
+            "i": str
+        }
+        self.translate_fields = {
+            "b" : "background_color",
+            "i": "image_url"
+        }
+        self.init_fields()
 
-    def data(self, data):
-        auth = data.get("auth_token", data)
-        self.id = auth["id"]
-        self.key = auth["key"]
-        self.expire_time = auth["expire_time"]
-        self.user_id = auth["user_id"]
-        self.username = auth.get("username", None)
+class Auth(DataClass):
+
+    def __init__(self):
+        super().__init__()
+        self.import_fields = {
+            "id": int,
+            "user_id": int,
+            "key": str,
+            "expire_time": int,
+            "username": str
+        }
+        self.init_fields()
 
     def update_username(self):
         user = User()
@@ -67,97 +92,69 @@ class Auth:
         user.load()
         self.username = user.username
 
-# Data object for a user
-class User:
+class User(DataClass):
 
     def __init__(self):
-        self.username = None
-        self.score = None
-        self.about = None
-        self.location = None
-        self.id = None
-        self.created_time = None
-        self.skills = None
-        self.github = None
-        self.website = None
-        self.content = {"rants": None, "upvoted": None, "comments": None, "favorites": None}
-        self.counts = {"rants": None, "upvoted": None, "comments": None, "favorites": None, "collabs": None}
-        self.dpp = None
-        self.avatar = None
-        self.avatar_sm = None
-        self.auth = None
+        self.import_fields = {
+            "username": str,
+            "score": int,
+            "about": str,
+            "location": str,
+            "id": int,
+            "created_time": int,
+            "skills": str,
+            "github": str,
+            "website": str,
+            "content": object,
+            "counts": object,
+            "dpp": bool,
+            "avatar": ProfileImage(),
+            "avatar_sm": ProfileImage(),
+            "auth": None
+        }
+        self.init_fields()
 
-    def data(self, data):
-        profile = data["profile"]
-        self.username = profile.get("username")
-        self.score = profile.get("score")
-        self.about = profile.get("about")
-        self.location = profile.get("location")
-        self.created_time = profile.get("created_time")
-        self.skills = profile.get("skills")
-        self.github = profile.get("github")
-        self.website = profile.get("website")
-        content = profile["content"]["content"]
-        self.content["rants"] = content["rants"]
-        self.content["upvoted"] = content["upvoted"]
-        self.content["comments"] = content["comments"]
-        self.content["favorites"] = content["favorites"]
-        counts = profile["content"]["counts"]
-        self.counts["rants"] = counts["rants"]
-        self.counts["upvoted"] = counts["upvoted"]
-        self.counts["comments"] = counts["comments"]
-        self.counts["favorites"] = counts["favorites"]
-        self.dpp = profile.get("dpp")
-        self.avatar = ProfileImage()
-        self.avatar.data(profile["avatar"])
-        self.avatar_sm = ProfileImage()
-        self.avatar_sm.data(profile["avatar_sm"])
-
-    def is_dpp(self):
-        return self.dpp == True
-
-    def load(self):
-        if self.id == None and self.username == None:
-            raise Exception("User ID or name required for this operation")
-        if self.id == None:
-            self.id = username_to_user_id(self.username)
-        self.data(get_user(self.id, raw_data=True))
-
-# Data object for a comment
-class Comment:
+class Comment(DataClass):
 
     def __init__(self):
-        self.id = None
-        self.rant_id = None
-        self.body = None
-        self.score = None
-        self.created_time = None
-        self.vote_state = None
-        self.user = None
-        self.attached_image = None
-
-    def data(self, data):
-        self.id = data["id"]
-        self.rant_id = data["rant_id"]
-        self.body = data["body"]
-        self.score = data["score"]
-        self.created_time = data["created_time"]
-        self.vote_state = data["vote_state"]
-        self.user = User()
-        self.user.id = data["user_id"]
-        self.user.username = data["user_username"]
-        self.user.score = data["user_score"]
-        self.user.user_avatar = ProfileImage()
-        self.user.user_avatar.data(data["user_avatar"])
-        if data.get("attached_image") != None:
-            self.attached_image = Image()
-            self.attached_image.data(data.get("attached_image"))
+        self.import_fields = {
+            "id": int,
+            "rant_id": int,
+            "body": str,
+            "score": int,
+            "created_time": int,
+            "vote_state": int,
+            "user": object,
+            "attached_image": Image()
+        }
 
     def has_image(self):
         return self.attached_image != None
 
     def to_string(self):
         return self.body
+
+class Rant(DataClass):
+
+    def __init__(self):
+        super().__init__()
+        self.import_fields = {
+            "id": int,
+            "text": str,
+            "score": int
+        }
+
+class RantLib:
+"""Objective rant library"""
+
+    @staticmethod
+    def get_rant(id):
+        data = RantAPI.get_rant(id).get("rant")
+        rant = Rant()
+        rant.import_data(data)
+        return rant
+
+""" 
 
 # Data object for a rant
 class Rant:
@@ -293,3 +290,7 @@ def get_feed(user_id, token_id, token_key):
     url = f"{FEED_URL}?app={APP_VERSION}&user_id={user_id}&token_id={token_id}&token_key={token_key}"
     req = requests.get(url)
     
+"""
+
+if __name__ == "__main__":
+    print(RantLib.get_rant(3744668).text)

@@ -58,3 +58,59 @@ def append_with_max(arr, data, max_len):
         arr.pop()
     arr.append(data)
     return data
+
+class DataClass:
+
+    def __init__(self):
+        self.accept_all_mode = False
+        self.fill_missing_fields = True
+        self.import_fields = {}
+        self.ignore_fields = []
+        self.translate_fields = {}
+
+    def import_data_item(self, key, value):
+        has_type_requirement = key in self.import_fields.keys()
+        if not has_type_requirement and not self.accept_all_mode:
+            return # Don't add this item
+        type_requirement = self.import_fields.get(key, None)
+        if isinstance(type_requirement, DataClass):
+            type_requirement.import_data(value)
+            self.__dict__[key] = value
+        else:
+            if type_requirement == object or type_requirement == None or type(value) == type_requirement:
+                self.__dict__[key] = value
+            else:
+                try:
+                    # Try to convert
+                    self.__dict__[key] = type_requirement(value)
+                except:
+                    if self.fill_missing_fields:
+                        self.__dict__[key] = None
+
+    def import_data(self, data):
+        translate_keys = self.translate_fields.keys()
+        if self.accept_all_mode:
+            for key, value in data.items():
+                if not key in self.ignore_fields:
+                    if key in translate_keys:
+                        key = self.translate_fields[key]
+                    self.import_data_item(key, value)
+        else:
+            import_keys = self.import_fields.keys()
+            for key, value in data.items():
+                if key in import_keys:
+                    if key in translate_keys:
+                        key = self.translate_fields[key]
+                    self.import_data_item(key, value)
+        self.init_fields()
+        self.after_data_import(data)
+
+    def init_fields(self):
+        self_keys = self.__dict__.keys()
+        import_field_keys = self.import_fields.keys()
+        for key in import_field_keys:
+            if not key in self_keys:
+                self.__dict__[key] = None
+
+    def after_data_import(self, data): # to be overridden by subclasses
+        pass

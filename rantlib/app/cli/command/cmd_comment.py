@@ -48,4 +48,4 @@ class CommentCommand(Command):
         box.render()
         
 def register(client):
-    client.register_command("comment",  CommentCommand(client))
+    client.register_command("comment",  CommentCommand(client), "comments")

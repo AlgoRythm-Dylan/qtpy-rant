@@ -58,7 +58,7 @@ class RantCommand(Command):
             append_with_max(self.read_rants, self.client.temp_data["rant"], 200)
         self.client.temp_data["rant"] = rant
         self.client.temp_data["comment_index"] = 0
-        box = Box(self.client.config.get("preferred_width"))
+        box = Box(self.client.get_width())
         score_string = f"{self.client.qtpy.language.get('score')}: {rant.score}, "
         score_string += f"{self.client.qtpy.language.get('rant_id')}: {rant.id}"
         box.add_section(two_column(score_string, f"{rant.user.username} ({rant.user.score})", box.inner_space()))

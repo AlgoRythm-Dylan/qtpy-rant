@@ -206,3 +206,13 @@ class TerminalClient(Client):
                 command_error = e
             executed_event = CommandExecutedEvent(executor, command_input, raw_command_text, error=command_error)
             self.qtpy.dispatch("command_executed", executed_event)
+
+    def get_width(self):
+        return self.config.get("preferred_width")
+
+    def set_width(self, width):
+        if type(width) == int:
+            self.config.set("preferred_width", width)
+            self.client.config.write_data_file(STD_PATH_CLI_CONFIG)
+        else:
+            raise ValueError("Width must be of type int")

@@ -66,26 +66,67 @@ if windows_mode:
 
 from enum import Enum
 
-# The order on this enum is important,
-# they are the order of the ASCII colors and convert to
-# linux 1:1
-TermColor = Enum(
-    'Black',
-    'Red',
-    'Green',
-    'Yellow',
-    'Blue',
-    'Magenta',
-    'Cyan',
-    'White'
-)
+class TermColor(Enum):
+    Black = 0
+    Red = 1
+    Green = 2
+    Yellow = 3
+    Blue = 4
+    Magenta = 5
+    Cyan = 6
+    White = 7
 
-TermAttr = Enum(
-    'Bold',
-    'BrightBackground',
-    'Underline',
-    'Reverse'
-)
+class TermAttr(Enum):
+    Bold = 0
+    BrightBackground = 1
+    Reverse = 2
+    Underline = 3
+
+if windows_mode:
+    # Windows translation object
+    class WindowsTranslate:
+        BackgroundColor: [
+            windows_bg["black"],
+            windows_bg["red"],
+            windows_bg["green"],
+            windows_bg["yellow"],
+            windows_bg["blue"],
+            windows_bg["magenta"],
+            windows_bg["cyan"],
+            windows_bg["white"]
+        ]
+        ForegroundColor: [
+            windows_fg["black"],
+            windows_fg["red"],
+            windows_fg["green"],
+            windows_fg["yellow"],
+            windows_fg["blue"],
+            windows_fg["magenta"],
+            windows_fg["cyan"],
+            windows_fg["white"]
+        ]
+        Attributes: [
+            0x0008,
+            0x0080,
+            0x4000,
+            0x8000
+        ]
+
+class TerminalFunctions:
+
+    @staticmethod
+    def newline_flush():
+        print("")
+        TerminalFunctions.flush()
+
+    @staticmethod
+    def flush():
+        sys.stdout.flush()
+
+    @staticmethod
+    def test_page():
+        buf = Buffer(width=10, height=4)
+
 
 class Character:
 
@@ -95,14 +136,80 @@ class Character:
         self.foreground = None
         self.attributes = []
 
+    def __eq__(self, other):
+        return self.char == other.char and self.same_formatting_as(other)
+
+    def same_formatting_as(self, other):
+        if len(self.attributes) != len(other.attributes):
+            return False
+        # Attributes is assumed to be a sorted list. Please
+        # use add_attr and remove_attr rather than modifying
+        # attributes array directly
+        for i in range(0, len(self.attributes)):
+            if self.attributes[i] != other.attributes[i]:
+                return False
+        # At this point, the attributes have been checked and
+        # the only remaining point of contest is the colors
+        return self.background == other.background and self.foreground == other.foreground
+
+    def add_attr(self, attr):
+        if not attr in self.attributes:
+            self.attributes.append(attr)
+            self.attributes.sort()
+
+    def remove_attr(self, attr):
+        self.attributes.remove(attr)
+
+    def apply_attributes(self):
+    if windows_mode:
+        attr_int = WindowsTranslate.ForegroundColor[self.foreground] | WindowsTranslate.BackgroundColor[character.background]
+        for attribute in self.attributes:
+            attr_int |= WindowsTranslate.Attributes[attribute]
+        windows_SetConsoleTextAttribute(windows_stdout(), attr_int)
+    else:
+        bold = TermAttr.Bold in self.attributes
+        bold_bg = TermAttr.BrightBackground in self.attributes
+        # Forground *nix color code
+        print(f"\u001b[{self.foreground}{'1' if bold else ''}m", end="")
+        # Backgound *nix color code
+        print(f"\u001b[{self.background};{'1' if bold_bg else ''}m", end="")
+        # *nix attributes
+        if TermAttr.Underline in self.attributes:
+            print("\u001b[4m", end="")
+        if TermAttr.Reverse in self.attributes:
+            print("\u001b[7m", end="")
+
 class Buffer:
 
     def __init__(self, width=0, height=0):
-        self.buffer = [Character()] * (width * height)
+        self.width = width
+        self.height = height
+        self.buffer = [Character() for i in range(width * height)]
+
+    def resize(width, height):
+        self.width = width
+        self.height = height
+        self.buffer = [Character() for i in range(width * height)]
+
+    def __getitem__(self, key):
+        return self.buffer[key]
+
+    def __iter__(self):
+        return self.buffer.__iter__()
+
+    def __setitem__(self, key, value):
+        self.buffer[key] = value
+
+    def set_at(self, x, y, value):
+        self.buffer[x + (y + self.width)] = value
+
+    def get_at(self, x, y):
+        return self.buffer[x + (y * self.width)]
 
     def render(self):
-        pass
-
-    def apply_attributes(self, attributes):
-        for attribute in attributes:
-            if attribute == TermAttr.Bold:
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                character = self.buffer[x + (y * self.height)]
+                character.apply_attributes()
+                print(character.char)
+            TerminalFunctions.newline_flush()

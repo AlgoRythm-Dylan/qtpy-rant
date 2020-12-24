@@ -64,9 +64,7 @@ if windows_mode:
     windows_bg["cyan"] = windows_bg["green"] | windows_bg["blue"]
     windows_bg["white"] = windows_bg["green"] | windows_bg["blue"] | windows_bg["red"]  
 
-from enum import Enum
-
-class TermColor(Enum):
+class TermColor:
     Black = 0
     Red = 1
     Green = 2
@@ -76,7 +74,7 @@ class TermColor(Enum):
     Cyan = 6
     White = 7
 
-class TermAttr(Enum):
+class TermAttr:
     Bold = 0
     BrightBackground = 1
     Reverse = 2
@@ -85,7 +83,7 @@ class TermAttr(Enum):
 if windows_mode:
     # Windows translation object
     class WindowsTranslate:
-        BackgroundColor: [
+        BackgroundColor = [
             windows_bg["black"],
             windows_bg["red"],
             windows_bg["green"],
@@ -95,7 +93,7 @@ if windows_mode:
             windows_bg["cyan"],
             windows_bg["white"]
         ]
-        ForegroundColor: [
+        ForegroundColor = [
             windows_fg["black"],
             windows_fg["red"],
             windows_fg["green"],
@@ -105,7 +103,7 @@ if windows_mode:
             windows_fg["cyan"],
             windows_fg["white"]
         ]
-        Attributes: [
+        Attributes = [
             0x0008,
             0x0080,
             0x4000,
@@ -126,14 +124,26 @@ class TerminalFunctions:
     @staticmethod
     def test_page():
         buf = Buffer(width=10, height=4)
+        buf.get_at(0, 0).char = "R"
+        buf.get_at(0, 0).foreground = TermColor.Red
+        buf.render()
+
+    @staticmethod
+    def reset():
+        if windows_mode:
+            default_attrs = WindowsTranslate.ForegroundColor[TermColor.White] | WindowsTranslate.BackgroundColor[TermColor.Black]
+            windows_SetConsoleTextAttribute(windows_stdout(), default_attrs)
+        else:
+            print(f"\u001b[00m", end="")
+
 
 
 class Character:
 
     def __init__(self, char=None):
         self.char = char
-        self.background = None
-        self.foreground = None
+        self.background = TermColor.Black
+        self.foreground = TermColor.White
         self.attributes = []
 
     def __eq__(self, other):
@@ -161,35 +171,38 @@ class Character:
         self.attributes.remove(attr)
 
     def apply_attributes(self):
-    if windows_mode:
-        attr_int = WindowsTranslate.ForegroundColor[self.foreground] | WindowsTranslate.BackgroundColor[character.background]
-        for attribute in self.attributes:
-            attr_int |= WindowsTranslate.Attributes[attribute]
-        windows_SetConsoleTextAttribute(windows_stdout(), attr_int)
-    else:
-        bold = TermAttr.Bold in self.attributes
-        bold_bg = TermAttr.BrightBackground in self.attributes
-        # Forground *nix color code
-        print(f"\u001b[{self.foreground}{'1' if bold else ''}m", end="")
-        # Backgound *nix color code
-        print(f"\u001b[{self.background};{'1' if bold_bg else ''}m", end="")
-        # *nix attributes
-        if TermAttr.Underline in self.attributes:
-            print("\u001b[4m", end="")
-        if TermAttr.Reverse in self.attributes:
-            print("\u001b[7m", end="")
+        if windows_mode:
+            attr_int = WindowsTranslate.ForegroundColor[self.foreground] | WindowsTranslate.BackgroundColor[self.background]
+            for attribute in self.attributes:
+                attr_int |= WindowsTranslate.Attributes[attribute]
+            windows_SetConsoleTextAttribute(windows_stdout(), attr_int)
+        else:
+            bold = TermAttr.Bold in self.attributes
+            bold_bg = TermAttr.BrightBackground in self.attributes
+            # Forground *nix color code
+            print(f"\u001b[{self.foreground}{'1' if bold else ''}m", end="")
+            # Backgound *nix color code
+            print(f"\u001b[{self.background};{'1' if bold_bg else ''}m", end="")
+            # *nix attributes
+            if TermAttr.Underline in self.attributes:
+                print("\u001b[4m", end="")
+            if TermAttr.Reverse in self.attributes:
+                print("\u001b[7m", end="")
 
 class Buffer:
 
     def __init__(self, width=0, height=0):
+        self.resize(width, height)
+
+    def resize(self, width, height):
         self.width = width
         self.height = height
         self.buffer = [Character() for i in range(width * height)]
 
-    def resize(width, height):
-        self.width = width
-        self.height = height
-        self.buffer = [Character() for i in range(width * height)]
+    def add_line(self):
+        self.height += 1
+        for x in range(0, self.width):
+            self.buffer.append(Character())
 
     def __getitem__(self, key):
         return self.buffer[key]
@@ -207,9 +220,19 @@ class Buffer:
         return self.buffer[x + (y * self.width)]
 
     def render(self):
+        last_character = None
         for y in range(0, self.height):
             for x in range(0, self.width):
                 character = self.buffer[x + (y * self.height)]
-                character.apply_attributes()
-                print(character.char)
+                update_attr = last_character == None or not last_character.same_formatting_as(character)
+                if update_attr:
+                    character.apply_attributes()
+                if character.char == None:
+                    print(" ", end="")
+                else:
+                    print(character.char, end="")
+                if update_attr:
+                    TerminalFunctions.flush()
+                last_character = character
+            TerminalFunctions.reset()
             TerminalFunctions.newline_flush()

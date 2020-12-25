@@ -123,9 +123,48 @@ class TerminalFunctions:
 
     @staticmethod
     def test_page():
-        buf = Buffer(width=10, height=4)
-        buf.get_at(0, 0).char = "R"
-        buf.get_at(0, 0).foreground = TermColor.Red
+        buf = Buffer(width=8, height=4)
+        writer = BufferWriter(buf)
+
+        writer.write("b", fg=TermColor.Black, bg=TermColor.White)
+        writer.write("r", fg=TermColor.Red)
+        writer.write("g", fg=TermColor.Green)
+        writer.write("y", fg=TermColor.Yellow)
+        writer.write("b", fg=TermColor.Blue)
+        writer.write("m", fg=TermColor.Magenta)
+        writer.write("c", fg=TermColor.Cyan)
+        writer.write("w", fg=TermColor.White)
+
+        writer.add_attr(TermAttr.Bold)
+        writer.write("B", fg=TermColor.Black)
+        writer.write("R", fg=TermColor.Red)
+        writer.write("G", fg=TermColor.Green)
+        writer.write("Y", fg=TermColor.Yellow)
+        writer.write("B", fg=TermColor.Blue)
+        writer.write("M", fg=TermColor.Magenta)
+        writer.write("C", fg=TermColor.Cyan)
+        writer.write("W", fg=TermColor.White)
+        writer.remove_attr(TermAttr.Bold)
+
+        writer.write("b", bg=TermColor.Black)
+        writer.write("r", bg=TermColor.Red)
+        writer.write("g", bg=TermColor.Green)
+        writer.write("y", bg=TermColor.Yellow)
+        writer.write("b", bg=TermColor.Blue)
+        writer.write("m", bg=TermColor.Magenta)
+        writer.write("c", bg=TermColor.Cyan)
+        writer.write("w", bg=TermColor.White, fg=TermColor.Black)
+        
+        writer.add_attr(TermAttr.BrightBackground)
+        writer.write("B", bg=TermColor.Black)
+        writer.write("R", bg=TermColor.Red)
+        writer.write("G", bg=TermColor.Green)
+        writer.write("Y", bg=TermColor.Yellow)
+        writer.write("B", bg=TermColor.Blue)
+        writer.write("M", bg=TermColor.Magenta)
+        writer.write("C", bg=TermColor.Cyan)
+        writer.write("W", bg=TermColor.White, fg=TermColor.Black)
+
         buf.render()
 
     @staticmethod
@@ -137,7 +176,6 @@ class TerminalFunctions:
             print(f"\u001b[00m", end="")
 
 
-
 class Character:
 
     def __init__(self, char=None):
@@ -147,6 +185,8 @@ class Character:
         self.attributes = []
 
     def __eq__(self, other):
+        if type(other) != Character:
+            return False
         return self.char == other.char and self.same_formatting_as(other)
 
     def same_formatting_as(self, other):
@@ -219,11 +259,11 @@ class Buffer:
     def get_at(self, x, y):
         return self.buffer[x + (y * self.width)]
 
-    def render(self):
+    def render(self, end="\n"):
         last_character = None
         for y in range(0, self.height):
             for x in range(0, self.width):
-                character = self.buffer[x + (y * self.height)]
+                character = self.buffer[x + (y * self.width)]
                 update_attr = last_character == None or not last_character.same_formatting_as(character)
                 if update_attr:
                     character.apply_attributes()
@@ -235,4 +275,52 @@ class Buffer:
                     TerminalFunctions.flush()
                 last_character = character
             TerminalFunctions.reset()
-            TerminalFunctions.newline_flush()
+            if not y == self.height - 1:
+                TerminalFunctions.newline_flush()
+            else:
+                print(end, end="")
+
+class BufferWriter:
+
+    def __init__(self, buffer):
+        self.buffer = buffer
+        self.x = 0
+        self.y = 0
+        self.attrs = []
+        self.foreground = TermColor.White
+        self.background = TermColor.Black
+
+    def add_attr(self, attr):
+        if not attr in self.attrs:
+            self.attrs.append(attr)
+            self.attrs.sort()
+
+    def remove_attr(self, attr):
+        self.attrs.remove(attr)
+
+    def reset_attrs(self):
+        self.attrs = []
+
+    def write(self, text, fg=None, bg=None, attrs=None):
+        if fg == None:
+            fg = self.foreground
+        if bg == None:
+            bg = self.background
+        if attrs == None:
+            attrs = self.attrs
+        for char in text:
+            if text == "\n" or self.x == self.buffer.width:
+                self.x = 0
+                self.y += 1
+            if self.y == self.buffer.height:
+                break
+            c = self.buffer.get_at(self.x, self.y)
+            c.foreground = fg
+            c.background = bg
+            c.char = char
+            c.attributes = attrs[:] # Shallow copy should be good
+            self.x += 1
+
+
+if __name__ == "__main__":
+    TerminalFunctions.test_page()

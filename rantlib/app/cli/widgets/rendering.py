@@ -123,7 +123,7 @@ class TerminalFunctions:
 
     @staticmethod
     def test_page():
-        buf = Buffer(width=8, height=4)
+        buf = Buffer(width=8, height=5)
         writer = BufferWriter(buf)
 
         writer.write("b", fg=TermColor.Black, bg=TermColor.White)
@@ -164,6 +164,8 @@ class TerminalFunctions:
         writer.write("M", bg=TermColor.Magenta)
         writer.write("C", bg=TermColor.Cyan)
         writer.write("W", bg=TermColor.White, fg=TermColor.Black)
+
+        writer.write("lined", attrs=[TermAttr.Underline])
 
         buf.render()
 
@@ -217,17 +219,34 @@ class Character:
                 attr_int |= WindowsTranslate.Attributes[attribute]
             windows_SetConsoleTextAttribute(windows_stdout(), attr_int)
         else:
-            bold = TermAttr.Bold in self.attributes
-            bold_bg = TermAttr.BrightBackground in self.attributes
-            # Forground *nix color code
-            print(f"\u001b[{self.foreground}{'1' if bold else ''}m", end="")
-            # Backgound *nix color code
-            print(f"\u001b[{self.background};{'1' if bold_bg else ''}m", end="")
-            # *nix attributes
-            if TermAttr.Underline in self.attributes:
-                print("\u001b[4m", end="")
-            if TermAttr.Reverse in self.attributes:
-                print("\u001b[7m", end="")
+            # Construct a *nix escape sequence
+            bold = False
+            bold_bg = False
+            underline = False
+            reverse = False
+            for attribute in self.attributes:
+                if attribute == TermAttr.Bold:
+                    bold = True
+                elif attribute == TermAttr.BrightBackground:
+                    bold_bg = True
+                elif attribute == TermAttr.Underline:
+                    underline = True
+                elif attribute == TermAttr.Reverse:
+                    reverse = True
+            bg_offset = 40
+            fg_offset = 30
+            if bold_bg:
+                bg_offset = 100
+            if bold:
+                fg_offset = 90
+            attr_line = f"\u001b[{fg_offset + self.foreground};{bg_offset + self.background}"
+            if bold:
+                attr_line += ";1"
+            if underline:
+                attr_line += ";4"
+            if reverse:
+                attr_line += ";7"
+            print(f"{attr_line}m", end="")
 
 class Buffer:
 
@@ -266,6 +285,7 @@ class Buffer:
                 character = self.buffer[x + (y * self.width)]
                 update_attr = last_character == None or not last_character.same_formatting_as(character)
                 if update_attr:
+                    TerminalFunctions.reset()
                     character.apply_attributes()
                 if character.char == None:
                     print(" ", end="")
@@ -308,6 +328,8 @@ class BufferWriter:
             bg = self.background
         if attrs == None:
             attrs = self.attrs
+        else:
+            attrs.sort()
         for char in text:
             if text == "\n" or self.x == self.buffer.width:
                 self.x = 0

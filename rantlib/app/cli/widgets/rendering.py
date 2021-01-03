@@ -11,7 +11,7 @@ try:
     import ctypes
     from ctypes import LibraryLoader
     windll = LibraryLoader(ctypes.WinDLL)
-    from ctypes import wintypes
+    from ctypes import wintypes, byref, Structure, c_char, POINTER
 except (AttributeError, ImportError):
     windows_mode = False
 
@@ -36,12 +36,28 @@ if windows_mode:
     ]
     windows_SetConsoleTextAttribute.restype = wintypes.BOOL
 
+    class CONSOLE_SCREEN_BUFFER_INFO(Structure):
+        _fields_ = [
+            ("dwSize", wintypes._COORD),
+            ("dwCursorPosition", wintypes._COORD),
+            ("wAttributes", wintypes.WORD),
+            ("srWindow", wintypes.SMALL_RECT),
+            ("dwMaximumWindowSize", wintypes._COORD)
+        ]
+
+    windows_GetConsoleScreenBufferInfo = windll.kernel32.GetConsoleScreenBufferInfo
+    windows_GetConsoleScreenBufferInfo.argtypes = [
+        wintypes.HANDLE,
+        POINTER(CONSOLE_SCREEN_BUFFER_INFO)
+    ]
+    windows_GetConsoleScreenBufferInfo.restype = wintypes.BOOL
+
     # Foreground and background colors in Windows have different values
     windows_fg = {
         "black": 0x0000,
-        "red": 0x0004,
-        "green": 0x0002,
-        "blue": 0x0001
+        "red": 0x0004,            # 4
+        "green": 0x0002,          # 2
+        "blue": 0x0001            # 1
     }
 
     # This may be more slow, technically, but it's more readable.
@@ -54,17 +70,27 @@ if windows_mode:
     # magnitude higher.
     windows_bg = {
         "black": 0x0000,
-        "red": 0x0040,
-        "green": 0x0020,
-        "blue": 0x0010,
+        "red": 0x0040,           # 64
+        "green": 0x0020,         # 32
+        "blue": 0x0010,          # 16
     }
 
     windows_bg["magenta"] = windows_bg["blue"] | windows_bg["red"]
     windows_bg["yellow"] = windows_bg["red"] | windows_bg["green"]
     windows_bg["cyan"] = windows_bg["green"] | windows_bg["blue"]
-    windows_bg["white"] = windows_bg["green"] | windows_bg["blue"] | windows_bg["red"]  
+    windows_bg["white"] = windows_bg["green"] | windows_bg["blue"] | windows_bg["red"]
+
+    def windows_get_attrs():
+        info = CONSOLE_SCREEN_BUFFER_INFO()
+        windows_GetConsoleScreenBufferInfo(windows_stdout(), byref(info))
+        return info.wAttributes
+
+    windows_original_attrs = windows_get_attrs()
+    windows_original_fore = windows_original_attrs & 0b111
+    windows_original_back = windows_original_attrs & 0b111000
 
 class TermColor:
+    Default = -1
     Black = 0
     Red = 1
     Green = 2
@@ -111,6 +137,27 @@ if windows_mode:
         ]
 
 class TerminalFunctions:
+
+    @staticmethod
+    def color(fg=None, bg=None):
+        if windows_mode:
+            pass
+        else:
+            pass
+
+    @staticmethod
+    def bold():
+        if windows_mode:
+            pass
+        else:
+            pass
+
+    @staticmethod
+    def underline():
+        if windows_mode:
+            pass
+        else:
+            pass
 
     @staticmethod
     def newline_flush():
@@ -165,15 +212,14 @@ class TerminalFunctions:
         writer.write("C", bg=TermColor.Cyan)
         writer.write("W", bg=TermColor.White, fg=TermColor.Black)
 
-        writer.write("lined", attrs=[TermAttr.Underline])
+        writer.write("lined", bg=TermColor.Red)
 
         buf.render()
 
     @staticmethod
     def reset():
         if windows_mode:
-            default_attrs = WindowsTranslate.ForegroundColor[TermColor.White] | WindowsTranslate.BackgroundColor[TermColor.Black]
-            windows_SetConsoleTextAttribute(windows_stdout(), default_attrs)
+            windows_SetConsoleTextAttribute(windows_stdout(), windows_original_attrs)
         else:
             print(f"\u001b[00m", end="")
 
@@ -182,8 +228,8 @@ class Character:
 
     def __init__(self, char=None):
         self.char = char
-        self.background = TermColor.Black
-        self.foreground = TermColor.White
+        self.background = TermColor.Default
+        self.foreground = TermColor.Default
         self.attributes = []
 
     def __eq__(self, other):
@@ -214,7 +260,13 @@ class Character:
 
     def apply_attributes(self):
         if windows_mode:
-            attr_int = WindowsTranslate.ForegroundColor[self.foreground] | WindowsTranslate.BackgroundColor[self.background]
+            fg = windows_original_fore
+            bg = windows_original_back
+            if self.foreground != TermColor.Default:
+                fg = WindowsTranslate.ForegroundColor[self.foreground]
+            if self.background != TermColor.Default:
+                bg = WindowsTranslate.BackgroundColor[self.background]
+            attr_int = fg | bg
             for attribute in self.attributes:
                 attr_int |= WindowsTranslate.Attributes[attribute]
             windows_SetConsoleTextAttribute(windows_stdout(), attr_int)
@@ -233,13 +285,21 @@ class Character:
                     underline = True
                 elif attribute == TermAttr.Reverse:
                     reverse = True
-            bg_offset = 40
-            fg_offset = 30
-            if bold_bg:
-                bg_offset = 100
-            if bold:
-                fg_offset = 90
-            attr_line = f"\u001b[{fg_offset + self.foreground};{bg_offset + self.background}"
+            bg = 40
+            fg = 30
+            if self.foreground == TermColor.Default:
+                fg = 39
+            else:
+                if bold_fg:
+                    bg = 90
+                fg += self.foreground
+            if self.background == TermColor.Default:
+                bg = 49
+            else:
+                if bold_bg:
+                    bg = 100
+                bg += self.background
+            attr_line = f"\u001b[{fg};{bg}"
             if bold:
                 attr_line += ";1"
             if underline:

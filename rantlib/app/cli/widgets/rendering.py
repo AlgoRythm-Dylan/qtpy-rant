@@ -198,7 +198,7 @@ class TerminalFunctions:
 
     @staticmethod
     def test_page():
-        buf = Buffer(width=8, height=5)
+        buf = Buffer(width=8, height=6)
         writer = BufferWriter(buf)
 
         writer.write("b", fg=TermColor.Black, bg=TermColor.White)
@@ -239,8 +239,11 @@ class TerminalFunctions:
         writer.write("M", bg=TermColor.Magenta)
         writer.write("C", bg=TermColor.Cyan)
         writer.write("W", bg=TermColor.White, fg=TermColor.Black)
+        writer.remove_attr(TermAttr.BrightBackground)
 
-        writer.write("lined", bg=TermColor.Red)
+        #writer.write("lined", attrs=[TermAttr.Underline])
+
+        writer.write("red", bg=TermColor.Red)
 
         buf.render()
 
@@ -373,6 +376,7 @@ class Buffer:
                 character = self.buffer[x + (y * self.width)]
                 update_attr = last_character == None or not last_character.same_formatting_as(character)
                 if update_attr:
+                    TerminalFunctions.flush()
                     TerminalFunctions.reset()
                     character.apply_attributes()
                 if character.char == None:
@@ -395,8 +399,8 @@ class BufferWriter:
         self.x = 0
         self.y = 0
         self.attrs = []
-        self.foreground = TermColor.White
-        self.background = TermColor.Black
+        self.foreground = TermColor.Default
+        self.background = TermColor.Default
 
     def add_attr(self, attr):
         if not attr in self.attrs:

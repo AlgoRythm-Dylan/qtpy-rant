@@ -170,8 +170,8 @@ class TerminalFunctions:
                         string += str(bg + 100)
                     else:
                         string += str(bg + 40)
-            if fg != None and bg != None:
-                print(f"\u001b[{string}", end="")
+            if not (fg == None and bg == None):
+                print(f"\u001b[{string}m", end="")
 
     @staticmethod
     def bold():

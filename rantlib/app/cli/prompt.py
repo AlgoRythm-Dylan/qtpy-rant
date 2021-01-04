@@ -1,8 +1,7 @@
 from datetime import datetime
 import sys
 
-from rantlib.app.cli.util import *
-#from qtpyr.cli import TerminalFunctions TODO
+from qtpyr.cli import TerminalFunctions
 
 TOKEN_TYPE_STR = "str"
 TOKEN_TYPE_INSTRUCTION = "instr"
@@ -38,6 +37,17 @@ colors = [
     "[white_bg]",
     "[black_bg]"
     ]
+
+color_list = [
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white"
+]
 
 class Prompt:
 
@@ -157,10 +167,14 @@ class Prompt:
                 elif token.text == "[timezone]":
                     print(now.strftime("%Z"), end="")
                 elif token.text == "[reset]":
-                    reset()
+                    TerminalFunctions.reset()
                 elif token.text in colors and self.client.config.get("preference_colors_enabled"):
-                    color = token.text.replace("[", "").replace("]", "")[:-3]
-                    console_color(color, bg=token.text.endswith("_bg]"))
+                    bg=token.text.endswith("_bg]")
+                    color = color_list.index(token.text.replace("[", "").replace("]", "")[:-3])
+                    if bg:
+                        TerminalFunctions.color(bg=color)
+                    else:
+                        TerminalFunctions.color(fg=color)
                 else:
                     # Search custom gadgets
                     command_name = token.text.replace("[", "").replace("]", "")

@@ -3,7 +3,7 @@ class AccountManager:
     def __init__(self):
         pass
 
-    async load_accounts(self):
+    def load_accounts(self):
         pass
 
 class Account:

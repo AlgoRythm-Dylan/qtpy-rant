@@ -8,15 +8,10 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = "0.1.0"
 
-#from rantlib.app.event.event import EventEmitter
 from qtpyr.event import EventEmitter
-#from rantlib.app.auth import AuthService
 from qtpyr.auth import AuthService
-#from rantlib.app.config import QtPyRantConfig
 from qtpyr.config import QtPyRantConfig
-#from rantlib.app.lang import load_language
 from qtpyr.lang import load_language
-#from rantlib.app.storage import STD_PATH_APP_CONFIG
 from qtpyr.storage import STD_PATH_APP_CONFIG
 
 # Main application class. Has the respobsibility of

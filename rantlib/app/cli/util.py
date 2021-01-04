@@ -1,3 +1,8 @@
+# This file, full of awful, hacky code, is now illegal.
+# It will be deleted when the rest of the project works without it.
+
+"""
+
 import sys
 
 windows_mode = False
@@ -183,3 +188,5 @@ class Box:
                     section.render_line(line, end="")
                     print(f"{padding}|")
         print(separator)
+
+"""

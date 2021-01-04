@@ -19,3 +19,6 @@ import rantlib.app.client
 import rantlib.app.event
 import rantlib.app.lang
 import rantlib.app.account
+
+# Submodules
+import cli

@@ -139,11 +139,39 @@ if windows_mode:
 class TerminalFunctions:
 
     @staticmethod
-    def color(fg=None, bg=None):
+    def color(fg=None, bg=None, bright=False):
         if windows_mode:
-            pass
+            attrs = windows_get_attrs()
+            if fg != None:
+                attrs |= WindowsTranslate.ForegroundColor[fg]
+                if bright:
+                    attrs |= WindowsTranslate.Attributes[TermAttr.Bold]
+            if bg != None:
+                attrs |= WindowsTranslate.BackgroundColor[bg]
+                if bright:
+                    attrs |= WindowsTranslate.Attributes[TermAttr.BrightBackground]
         else:
-            pass
+            string = ""
+            if fg != None:
+                if fg == TermColor.Default:
+                    string += "39"
+                else:
+                    if bright:
+                        string += str(fg + 90)
+                    else:
+                        string += str(fg + 30)
+            if bg != None:
+                if fg != None:
+                    string += ";"
+                if bg == TermColor.Default:
+                    string += 49
+                else:
+                    if bright:
+                        string += str(bg + 100)
+                    else:
+                        string += str(bg + 40)
+            if fg != None and bg != None:
+                print(f"\u001b[{string}", end="")
 
     @staticmethod
     def bold():

@@ -175,6 +175,7 @@ class Prompt:
                         TerminalFunctions.color(bg=color)
                     else:
                         TerminalFunctions.color(fg=color)
+                    TerminalFunctions.flush()
                 else:
                     # Search custom gadgets
                     command_name = token.text.replace("[", "").replace("]", "")

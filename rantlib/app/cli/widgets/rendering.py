@@ -36,6 +36,9 @@ if windows_mode:
     ]
     windows_SetConsoleTextAttribute.restype = wintypes.BOOL
 
+    def windows_set_attrs(attrs):
+        windows_SetConsoleTextAttribute(windows_stdout(), attrs)
+
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
         _fields_ = [
             ("dwSize", wintypes._COORD),
@@ -139,17 +142,26 @@ if windows_mode:
 class TerminalFunctions:
 
     @staticmethod
-    def color(fg=None, bg=None, bright=False):
+    def color(fg=None, bg=None, bright=None):
         if windows_mode:
             attrs = windows_get_attrs()
             if fg != None:
+                attrs &= 0b1111111111111000 # Clear out old foreground color
                 attrs |= WindowsTranslate.ForegroundColor[fg]
-                if bright:
-                    attrs |= WindowsTranslate.Attributes[TermAttr.Bold]
+                if bright != None:
+                    if bright == True:
+                        attrs |= WindowsTranslate.Attributes[TermAttr.Bold]
+                    else:
+                        attrs &= 0b1111111111110111
             if bg != None:
+                attrs &= 0b1111111110001111 # Clear out background color
                 attrs |= WindowsTranslate.BackgroundColor[bg]
-                if bright:
-                    attrs |= WindowsTranslate.Attributes[TermAttr.BrightBackground]
+                if bright != None:
+                    if bright:
+                        attrs |= WindowsTranslate.Attributes[TermAttr.BrightBackground]
+                    else:
+                        attrs &= 0b1111111101111111
+            windows_set_attrs(attrs)
         else:
             string = ""
             if fg != None:
